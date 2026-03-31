@@ -17,6 +17,10 @@ flutter run
 
 Use an Android emulator or device. On first open, Flutter writes `android/local.properties` with `flutter.sdk` when you run from the project directory.
 
+## Web + iPhone-style preview
+
+After `flutter run -d web-server` (or your dev URL), open **`/iphone_preview.html`** on the same origin (e.g. `http://127.0.0.1:8080/iphone_preview.html`) for a browser frame that mimics an iPhone around the app.
+
 ## iOS
 
 This repo ships with **Android** only. Add iOS with:
