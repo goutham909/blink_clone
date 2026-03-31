@@ -209,8 +209,11 @@
     <p>
       The Flutter app runs inside the frame below.
       <a href="index.html" target="_blank" rel="noopener">Open full page</a>
-      · Reload preview:
-      <a href="iphone_preview.html">Refresh</a>
+      · <a href="iphone_preview.html">Refresh this page</a>
+    </p>
+    <p style="margin-top:10px;padding:10px 12px;background:rgba(255,193,7,0.12);border-radius:10px;border:1px solid rgba(255,193,7,0.25);color:rgba(255,235,180,0.95);text-align:left;">
+      <strong>Seeing an old UI?</strong> Serve the <code style="color:#b8e7c8">build/web</code> folder (not <code style="color:#b8e7c8">web/</code> alone), then run
+      <code style="color:#b8e7c8">flutter build web</code> after code changes. Hard-reload the iframe: right-click inside the phone → Reload Frame, or press <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>R</kbd> with DevTools open and cache disabled.
     </p>
   </div>
 
@@ -225,7 +228,7 @@
           <div class="screen">
             <iframe
               id="app-frame"
-              src="index.html"
+              src="about:blank"
               title="Blink Clone app"
               allow="clipboard-read; clipboard-write"
             ></iframe>
@@ -240,8 +243,16 @@
   </div>
 
   <p class="hint">
-    Start the dev server (<code style="color: rgba(255,255,255,0.55)">flutter run -d web-server</code>),
-    then open this file at <code style="color: rgba(255,255,255,0.55)">/iphone_preview.html</code> on the same origin (e.g. http://127.0.0.1:8080/iphone_preview.html).
+    From the project folder: <code style="color: rgba(255,255,255,0.55)">flutter build web</code>, then serve <code style="color: rgba(255,255,255,0.55)">build/web</code> (e.g. <code style="color: rgba(255,255,255,0.55)">python -m http.server 8080</code> inside <code style="color: rgba(255,255,255,0.55)">build/web</code>).
+    Or: <code style="color: rgba(255,255,255,0.55)">flutter run -d web-server --web-port=8080</code> and open <code style="color: rgba(255,255,255,0.55)">/iphone_preview.html</code> on that origin.
   </p>
+  <script>
+    (function () {
+      var frame = document.getElementById('app-frame');
+      if (frame) {
+        frame.src = 'index.html?t=' + Date.now();
+      }
+    })();
+  </script>
 </body>
 </html>

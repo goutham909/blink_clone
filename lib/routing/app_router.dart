@@ -2,11 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../features/account/account_screen.dart';
 import '../features/cart/cart_screen.dart';
+import '../features/categories/categories_screen.dart';
 import '../features/checkout/checkout_screen.dart';
 import '../features/home/home_screen.dart';
+import '../features/order_again/order_again_screen.dart';
 import '../features/orders/order_detail_screen.dart';
 import '../features/orders/orders_screen.dart';
+import '../features/print/print_screen.dart';
 import '../features/product_detail/product_detail_screen.dart';
 import '../features/search/search_screen.dart';
 import 'app_shell.dart';
@@ -37,11 +41,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: '/search',
-                name: 'search',
+                path: '/order-again',
+                name: 'orderAgain',
                 pageBuilder: (context, state) => NoTransitionPage(
                   key: state.pageKey,
-                  child: const SearchScreen(),
+                  child: const OrderAgainScreen(),
                 ),
               ),
             ],
@@ -49,11 +53,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: '/cart',
-                name: 'cart',
+                path: '/categories',
+                name: 'categories',
                 pageBuilder: (context, state) => NoTransitionPage(
                   key: state.pageKey,
-                  child: const CartScreen(),
+                  child: const CategoriesScreen(),
                 ),
               ),
             ],
@@ -61,16 +65,40 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: '/orders',
-                name: 'orders',
+                path: '/print',
+                name: 'print',
                 pageBuilder: (context, state) => NoTransitionPage(
                   key: state.pageKey,
-                  child: const OrdersScreen(),
+                  child: const PrintScreen(),
                 ),
               ),
             ],
           ),
         ],
+      ),
+      GoRoute(
+        path: '/search',
+        name: 'search',
+        parentNavigatorKey: _rootKey,
+        builder: (context, state) => const SearchScreen(),
+      ),
+      GoRoute(
+        path: '/account',
+        name: 'account',
+        parentNavigatorKey: _rootKey,
+        builder: (context, state) => const AccountScreen(),
+      ),
+      GoRoute(
+        path: '/cart',
+        name: 'cart',
+        parentNavigatorKey: _rootKey,
+        builder: (context, state) => const CartScreen(),
+      ),
+      GoRoute(
+        path: '/orders',
+        name: 'orders',
+        parentNavigatorKey: _rootKey,
+        builder: (context, state) => const OrdersScreen(),
       ),
       GoRoute(
         path: '/product/:id',

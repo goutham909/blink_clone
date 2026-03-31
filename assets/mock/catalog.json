@@ -1,7 +1,11 @@
 {
   "schemaVersion": 1,
-  "datasetId": "demo-v1",
-  "locationLabel": "Set delivery location",
+  "datasetId": "blinkit-demo-v2",
+  "locationLabel": "Silpa Gram Craft Village",
+  "deliveryMinutes": 12,
+  "currentLocationAddress": "The Skyview, Raidurgam, Hitech City Main Rd, Madhapur, Telangana",
+  "recommendationBrand": "Kwality Walls",
+  "poweredBy": ["Cetaphil", "Dot & Key", "Minimalist"],
   "banners": [
     {
       "id": "bn_1",
@@ -17,13 +21,86 @@
     }
   ],
   "categories": [
-    { "id": "cat_all", "label": "All" },
-    { "id": "cat_dairy", "label": "Dairy" },
-    { "id": "cat_snacks", "label": "Snacks" },
-    { "id": "cat_bev", "label": "Beverages" },
-    { "id": "cat_house", "label": "Home care" }
+    { "id": "cat_all", "label": "All", "iconName": "all" },
+    { "id": "cat_summer", "label": "Summer", "iconName": "summer", "badgeText": "New" },
+    { "id": "cat_elec", "label": "Electronics", "iconName": "electronics" },
+    { "id": "cat_beauty", "label": "Beauty", "iconName": "beauty" },
+    { "id": "cat_pharma", "label": "Pharma", "iconName": "pharma" },
+    { "id": "cat_dairy", "label": "Dairy", "iconName": "dairy" },
+    { "id": "cat_snacks", "label": "Snacks", "iconName": "snacks" },
+    { "id": "cat_bev", "label": "Beverages", "iconName": "beverage" },
+    { "id": "cat_house", "label": "Home care", "iconName": "kitchen" }
+  ],
+  "dealCards": [
+    {
+      "id": "deal_summer",
+      "title": "SUMMER DEALS",
+      "subtitle": "Drink Mix",
+      "discountLabel": "₹214",
+      "accentHex": "FFFF6B00",
+      "thumbnailHints": ["beverage", "snacks", "beverage"]
+    },
+    {
+      "id": "deal_selfcare",
+      "title": "Self Care & Wellness",
+      "subtitle": "Sunscreen, protein & more",
+      "discountLabel": "Up to 50% OFF",
+      "accentHex": "FFFFFFFF",
+      "thumbnailHints": ["kitchen", "snacks", "dairy"]
+    },
+    {
+      "id": "deal_kitchen",
+      "title": "Kitchen Essentials",
+      "subtitle": "Oil, atta, maggi",
+      "discountLabel": "Up to 40% OFF",
+      "accentHex": "FFFFFFFF",
+      "thumbnailHints": ["kitchen", "kitchen", "snacks"]
+    },
+    {
+      "id": "deal_coolers",
+      "title": "Refreshing Coolers",
+      "subtitle": "Juice & soft drinks",
+      "discountLabel": "Up to 55% OFF",
+      "accentHex": "FFFFFFFF",
+      "thumbnailHints": ["beverage", "snacks", "beverage"]
+    },
+    {
+      "id": "deal_cleaning",
+      "title": "Cleaning & Home",
+      "subtitle": "Detergent & fresheners",
+      "discountLabel": "Up to 75% OFF",
+      "accentHex": "FFFFFFFF",
+      "thumbnailHints": ["kitchen", "kitchen", "misc"]
+    }
+  ],
+  "recentSearches": [
+    { "query": "rajma", "thumbProductId": "p_rice" },
+    { "query": "sugar", "thumbProductId": "p_sugar" },
+    { "query": "jam", "thumbProductId": "p_biscuit" },
+    { "query": "avocado", "thumbProductId": "p_nuts" }
+  ],
+  "trendingProductIds": ["p_cola", "p_milk", "p_chips", "p_bread"],
+  "savedAddresses": [
+    {
+      "id": "addr_home",
+      "label": "Home",
+      "fullAddress": "12 Sample Street, Silpa Gram Craft Village, Hyderabad",
+      "distanceKm": 7.37,
+      "phoneNumber": "+91 9177369376"
+    },
+    {
+      "id": "addr_work",
+      "label": "Work",
+      "fullAddress": "Tech Park, Hitech City, Hyderabad",
+      "distanceKm": 3.2
+    }
   ],
   "rails": [
+    {
+      "id": "rail_lowest",
+      "title": "Lowest prices ever",
+      "productIds": ["p_milk", "p_chips", "p_cola", "p_bread", "p_biscuit"]
+    },
     {
       "id": "rail_trending",
       "title": "Trending now",
@@ -49,7 +126,15 @@
       "unit": "500 ml",
       "categoryId": "cat_dairy",
       "imageHint": "dairy",
-      "inStock": true
+      "inStock": true,
+      "rating": 4.4,
+      "ratingCount": 892,
+      "deliveryMinutes": 12,
+      "stockLeft": 24,
+      "optionsCount": 0,
+      "boughtEarlier": false,
+      "isAd": false,
+      "isVegetarian": true
     },
     {
       "id": "p_bread",
@@ -59,7 +144,15 @@
       "unit": "400 g",
       "categoryId": "cat_snacks",
       "imageHint": "bakery",
-      "inStock": true
+      "inStock": true,
+      "rating": 4.1,
+      "ratingCount": 210,
+      "deliveryMinutes": 12,
+      "stockLeft": 8,
+      "optionsCount": 2,
+      "boughtEarlier": true,
+      "isAd": false,
+      "isVegetarian": true
     },
     {
       "id": "p_chips",
@@ -69,7 +162,15 @@
       "unit": "52 g",
       "categoryId": "cat_snacks",
       "imageHint": "snacks",
-      "inStock": true
+      "inStock": true,
+      "rating": 4.6,
+      "ratingCount": 1203,
+      "deliveryMinutes": 12,
+      "stockLeft": 2,
+      "optionsCount": 0,
+      "boughtEarlier": false,
+      "isAd": true,
+      "isVegetarian": true
     },
     {
       "id": "p_cola",
@@ -79,7 +180,15 @@
       "unit": "750 ml",
       "categoryId": "cat_bev",
       "imageHint": "beverage",
-      "inStock": true
+      "inStock": true,
+      "rating": 4.3,
+      "ratingCount": 560,
+      "deliveryMinutes": 12,
+      "stockLeft": 15,
+      "optionsCount": 3,
+      "boughtEarlier": true,
+      "isAd": false,
+      "isVegetarian": true
     },
     {
       "id": "p_biscuit",
@@ -89,7 +198,15 @@
       "unit": "200 g",
       "categoryId": "cat_snacks",
       "imageHint": "snacks",
-      "inStock": true
+      "inStock": true,
+      "rating": 4.5,
+      "ratingCount": 340,
+      "deliveryMinutes": 12,
+      "stockLeft": 1,
+      "optionsCount": 0,
+      "boughtEarlier": false,
+      "isAd": false,
+      "isVegetarian": true
     },
     {
       "id": "p_nuts",
@@ -99,7 +216,15 @@
       "unit": "200 g",
       "categoryId": "cat_snacks",
       "imageHint": "snacks",
-      "inStock": true
+      "inStock": true,
+      "rating": 4.7,
+      "ratingCount": 89,
+      "deliveryMinutes": 12,
+      "stockLeft": 6,
+      "optionsCount": 0,
+      "boughtEarlier": false,
+      "isAd": true,
+      "isVegetarian": true
     },
     {
       "id": "p_chocolate",
@@ -109,7 +234,14 @@
       "unit": "90 g",
       "categoryId": "cat_snacks",
       "imageHint": "snacks",
-      "inStock": false
+      "inStock": false,
+      "rating": 4.2,
+      "ratingCount": 412,
+      "deliveryMinutes": 12,
+      "optionsCount": 0,
+      "boughtEarlier": false,
+      "isAd": false,
+      "isVegetarian": true
     },
     {
       "id": "p_oil",
@@ -117,9 +249,17 @@
       "mrp": 260,
       "salePrice": 229,
       "unit": "1 L",
-      "categoryId": "cat_kitchen",
+      "categoryId": "cat_house",
       "imageHint": "kitchen",
-      "inStock": true
+      "inStock": true,
+      "rating": 4.4,
+      "ratingCount": 670,
+      "deliveryMinutes": 12,
+      "stockLeft": 11,
+      "optionsCount": 2,
+      "boughtEarlier": false,
+      "isAd": false,
+      "isVegetarian": true
     },
     {
       "id": "p_rice",
@@ -127,9 +267,17 @@
       "mrp": 189,
       "salePrice": 169,
       "unit": "1 kg",
-      "categoryId": "cat_kitchen",
+      "categoryId": "cat_house",
       "imageHint": "kitchen",
-      "inStock": true
+      "inStock": true,
+      "rating": 4.5,
+      "ratingCount": 900,
+      "deliveryMinutes": 12,
+      "stockLeft": 4,
+      "optionsCount": 0,
+      "boughtEarlier": true,
+      "isAd": false,
+      "isVegetarian": true
     },
     {
       "id": "p_salt",
@@ -137,9 +285,17 @@
       "mrp": 28,
       "salePrice": 22,
       "unit": "1 kg",
-      "categoryId": "cat_kitchen",
+      "categoryId": "cat_house",
       "imageHint": "kitchen",
-      "inStock": true
+      "inStock": true,
+      "rating": 4.0,
+      "ratingCount": 2000,
+      "deliveryMinutes": 12,
+      "stockLeft": 30,
+      "optionsCount": 0,
+      "boughtEarlier": false,
+      "isAd": false,
+      "isVegetarian": true
     },
     {
       "id": "p_sugar",
@@ -147,9 +303,17 @@
       "mrp": 55,
       "salePrice": 48,
       "unit": "1 kg",
-      "categoryId": "cat_kitchen",
+      "categoryId": "cat_house",
       "imageHint": "kitchen",
-      "inStock": true
+      "inStock": true,
+      "rating": 4.3,
+      "ratingCount": 780,
+      "deliveryMinutes": 12,
+      "stockLeft": 3,
+      "optionsCount": 0,
+      "boughtEarlier": false,
+      "isAd": false,
+      "isVegetarian": true
     }
   ]
 }

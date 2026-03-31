@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../data/models/address.dart';
 import '../data/models/order_models.dart';
 import '../data/repositories/catalog_repository.dart';
 import '../data/sources/mock_catalog_source.dart';
@@ -97,3 +98,35 @@ final cartTotalsProvider = Provider<CartTotals>((ref) {
   }
   return (itemCount: count, subtotal: subtotal);
 });
+
+/// User-typed recent searches (persisted in session).
+class RecentSearchesNotifier extends Notifier<List<String>> {
+  @override
+  List<String> build() => [];
+
+  void add(String query) {
+    final q = query.trim();
+    if (q.isEmpty) return;
+    final next = [q, ...state.where((s) => s.toLowerCase() != q.toLowerCase())];
+    state = next.take(12).toList();
+  }
+
+  void clear() => state = [];
+}
+
+final recentSearchesNotifierProvider =
+    NotifierProvider<RecentSearchesNotifier, List<String>>(RecentSearchesNotifier.new);
+
+/// Selected delivery address label + line (mock).
+class SelectedAddressNotifier extends Notifier<SavedAddress?> {
+  @override
+  SavedAddress? build() => null;
+
+  void select(SavedAddress? address) => state = address;
+}
+
+final selectedAddressProvider =
+    NotifierProvider<SelectedAddressNotifier, SavedAddress?>(SelectedAddressNotifier.new);
+
+/// Mock wallet balance shown in header (₹).
+final walletBalanceProvider = StateProvider<int>((ref) => 0);

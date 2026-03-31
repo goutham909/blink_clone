@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'core/constants.dart';
 import 'routing/app_router.dart';
 import 'widgets/debug_panel_sheet.dart';
 
@@ -16,7 +17,7 @@ class BlinkCloneApp extends ConsumerWidget {
     return MaterialApp.router(
       title: 'Blink Clone',
       debugShowCheckedModeBanner: false,
-      theme: buildBlinkTheme(Brightness.light),
+      theme: buildBlinkTheme(Brightness.dark),
       routerConfig: router,
       builder: (context, child) {
         var result = child ?? const SizedBox.shrink();
@@ -45,15 +46,49 @@ class BlinkCloneApp extends ConsumerWidget {
 }
 
 ThemeData buildBlinkTheme(Brightness brightness) {
-  const primary = Color(0xFF00A651);
   final base = ThemeData(
     useMaterial3: true,
-    colorScheme: ColorScheme.fromSeed(
-      seedColor: primary,
-      brightness: brightness,
-      primary: primary,
+    brightness: brightness,
+    colorScheme: ColorScheme.dark(
+      primary: kBlinkGreen,
+      onPrimary: Colors.white,
+      secondary: kBlinkAmber,
+      onSecondary: Colors.black,
+      surface: kBlinkDarkSurface,
+      onSurface: Colors.white,
+      surfaceContainerHighest: kBlinkDarkCard,
+      outline: Colors.white54,
+      error: const Color(0xFFFF453A),
+      onError: Colors.white,
     ),
-    appBarTheme: const AppBarTheme(centerTitle: false, elevation: 0),
+    scaffoldBackgroundColor: kBlinkDarkBg,
+    cardTheme: CardThemeData(
+      color: kBlinkDarkCard,
+      elevation: 0,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    ),
+    appBarTheme: const AppBarTheme(
+      centerTitle: false,
+      elevation: 0,
+      backgroundColor: kBlinkDarkBg,
+      foregroundColor: Colors.white,
+    ),
+    navigationBarTheme: NavigationBarThemeData(
+      backgroundColor: kBlinkDarkSurface,
+      indicatorColor: kBlinkGreen.withValues(alpha: 0.35),
+      labelTextStyle: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
+          return const TextStyle(color: kBlinkGreen, fontWeight: FontWeight.w600, fontSize: 12);
+        }
+        return const TextStyle(color: Colors.white54, fontSize: 12);
+      }),
+      iconTheme: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
+          return const IconThemeData(color: kBlinkGreen);
+        }
+        return const IconThemeData(color: Colors.white54);
+      }),
+    ),
   );
   return base.copyWith(
     textTheme: GoogleFonts.dmSansTextTheme(base.textTheme),

@@ -39,6 +39,15 @@ Future<void> showDebugPanel(BuildContext context, WidgetRef ref) {
               ),
               const SizedBox(height: 8),
               OutlinedButton(
+                onPressed: () {
+                  ref.read(recentSearchesNotifierProvider.notifier).clear();
+                  ref.read(selectedAddressProvider.notifier).select(null);
+                  Navigator.pop(ctx);
+                },
+                child: const Text('Clear recent searches & address'),
+              ),
+              const SizedBox(height: 8),
+              OutlinedButton(
                 onPressed: () async {
                   await ref.read(mockCatalogSourceProvider).clearCache();
                   ref.invalidate(catalogProvider);

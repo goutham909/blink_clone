@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../core/constants.dart';
+
 class ProductImagePlaceholder extends StatelessWidget {
   const ProductImagePlaceholder({
     super.key,
@@ -33,25 +35,28 @@ class ProductImagePlaceholder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final h = height ?? 120.0;
     return ClipRRect(
       borderRadius: borderRadius,
       child: Container(
-        height: height,
+        height: h,
         alignment: Alignment.center,
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              accent.withValues(alpha: 0.15),
-              accent.withValues(alpha: 0.05),
+              accent.withValues(alpha: 0.22),
+              kBlinkDarkCard,
+              accent.withValues(alpha: 0.08),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
+          border: Border.all(color: Colors.white12),
         ),
         child: Icon(
           _iconForHint(),
-          size: height != null ? height! * 0.35 : 40,
-          color: accent.withValues(alpha: 0.85),
+          size: h * 0.38,
+          color: accent.withValues(alpha: 0.9),
         ),
       ),
     );
