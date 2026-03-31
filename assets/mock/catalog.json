@@ -1,0 +1,155 @@
+{
+  "schemaVersion": 1,
+  "datasetId": "demo-v1",
+  "locationLabel": "Set delivery location",
+  "banners": [
+    {
+      "id": "bn_1",
+      "title": "Minutes delivery",
+      "subtitle": "Groceries to your door",
+      "accentHex": "FF0D9488"
+    },
+    {
+      "id": "bn_2",
+      "title": "Fresh produce",
+      "subtitle": "Up to 20% off today",
+      "accentHex": "FFEA580C"
+    }
+  ],
+  "categories": [
+    { "id": "cat_all", "label": "All" },
+    { "id": "cat_dairy", "label": "Dairy" },
+    { "id": "cat_snacks", "label": "Snacks" },
+    { "id": "cat_bev", "label": "Beverages" },
+    { "id": "cat_house", "label": "Home care" }
+  ],
+  "rails": [
+    {
+      "id": "rail_trending",
+      "title": "Trending now",
+      "productIds": ["p_milk", "p_chips", "p_cola", "p_bread"]
+    },
+    {
+      "id": "rail_snacks",
+      "title": "Snacks & more",
+      "productIds": ["p_chips", "p_biscuit", "p_nuts", "p_chocolate"]
+    },
+    {
+      "id": "rail_kitchen",
+      "title": "Kitchen essentials",
+      "productIds": ["p_oil", "p_rice", "p_salt", "p_sugar"]
+    }
+  ],
+  "products": [
+    {
+      "id": "p_milk",
+      "name": "Toned milk pouch",
+      "mrp": 58,
+      "salePrice": 52,
+      "unit": "500 ml",
+      "categoryId": "cat_dairy",
+      "imageHint": "dairy",
+      "inStock": true
+    },
+    {
+      "id": "p_bread",
+      "name": "Whole wheat bread",
+      "mrp": 55,
+      "salePrice": 49,
+      "unit": "400 g",
+      "categoryId": "cat_snacks",
+      "imageHint": "bakery",
+      "inStock": true
+    },
+    {
+      "id": "p_chips",
+      "name": "Classic salted chips",
+      "mrp": 30,
+      "salePrice": 25,
+      "unit": "52 g",
+      "categoryId": "cat_snacks",
+      "imageHint": "snacks",
+      "inStock": true
+    },
+    {
+      "id": "p_cola",
+      "name": "Cola soft drink",
+      "mrp": 90,
+      "salePrice": 79,
+      "unit": "750 ml",
+      "categoryId": "cat_bev",
+      "imageHint": "beverage",
+      "inStock": true
+    },
+    {
+      "id": "p_biscuit",
+      "name": "Glucose biscuits",
+      "mrp": 35,
+      "salePrice": 29,
+      "unit": "200 g",
+      "categoryId": "cat_snacks",
+      "imageHint": "snacks",
+      "inStock": true
+    },
+    {
+      "id": "p_nuts",
+      "name": "Roasted almonds",
+      "mrp": 299,
+      "salePrice": 259,
+      "unit": "200 g",
+      "categoryId": "cat_snacks",
+      "imageHint": "snacks",
+      "inStock": true
+    },
+    {
+      "id": "p_chocolate",
+      "name": "Dark chocolate bar",
+      "mrp": 120,
+      "salePrice": 99,
+      "unit": "90 g",
+      "categoryId": "cat_snacks",
+      "imageHint": "snacks",
+      "inStock": false
+    },
+    {
+      "id": "p_oil",
+      "name": "Sunflower cooking oil",
+      "mrp": 260,
+      "salePrice": 229,
+      "unit": "1 L",
+      "categoryId": "cat_kitchen",
+      "imageHint": "kitchen",
+      "inStock": true
+    },
+    {
+      "id": "p_rice",
+      "name": "Basmati rice",
+      "mrp": 189,
+      "salePrice": 169,
+      "unit": "1 kg",
+      "categoryId": "cat_kitchen",
+      "imageHint": "kitchen",
+      "inStock": true
+    },
+    {
+      "id": "p_salt",
+      "name": "Iodized salt",
+      "mrp": 28,
+      "salePrice": 22,
+      "unit": "1 kg",
+      "categoryId": "cat_kitchen",
+      "imageHint": "kitchen",
+      "inStock": true
+    },
+    {
+      "id": "p_sugar",
+      "name": "Refined sugar",
+      "mrp": 55,
+      "salePrice": 48,
+      "unit": "1 kg",
+      "categoryId": "cat_kitchen",
+      "imageHint": "kitchen",
+      "inStock": true
+    }
+  ]
+}
