@@ -9,7 +9,7 @@ class AppShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: navigationShell,
+      body: SizedBox.expand(child: navigationShell),
       bottomNavigationBar: NavigationBar(
         key: const Key('main_nav_bar'),
         selectedIndex: navigationShell.currentIndex,

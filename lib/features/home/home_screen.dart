@@ -38,24 +38,30 @@ class HomeScreen extends ConsumerWidget {
           ),
         );
 
+        final bottomNavClearance =
+            MediaQuery.viewPaddingOf(context).bottom + 80;
+        final scrollBottomPad =
+            bottomNavClearance + (totals.itemCount > 0 ? 76 : 12);
+
         return Scaffold(
           key: const Key('screen_home'),
           backgroundColor: const Color(0xFFF7F7F7),
           body: Stack(
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  HomeHeader(
-                    locationTitle: locationTitle,
-                    deliveryMinutes: catalog.deliveryMinutes,
-                    onLocationTap: () => showAddressBottomSheet(context, catalog),
+              Theme(
+                data: homeBodyLight,
+                child: CustomScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(
+                    parent: BouncingScrollPhysics(),
                   ),
-                  Expanded(
-                    child: Theme(
-                      data: homeBodyLight,
-                      child: CustomScrollView(
-                        slivers: [
+                  slivers: [
+                  SliverToBoxAdapter(
+                    child: HomeHeader(
+                      locationTitle: locationTitle,
+                      deliveryMinutes: catalog.deliveryMinutes,
+                      onLocationTap: () => showAddressBottomSheet(context, catalog),
+                    ),
+                  ),
                   SliverToBoxAdapter(
                     child: ColoredBox(
                       color: const Color(0xFFF7F7F7),
@@ -98,10 +104,11 @@ class HomeScreen extends ConsumerWidget {
                     child: ColoredBox(
                       color: const Color(0xFFF7F7F7),
                       child: SizedBox(
-                        height: 96,
+                        height: 118,
                         child: ListView.builder(
                           scrollDirection: Axis.horizontal,
-                          padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
+                          primary: false,
+                          padding: const EdgeInsets.fromLTRB(12, 12, 12, 10),
                           itemCount: catalog.categories.length,
                           itemBuilder: (context, i) {
                             final c = catalog.categories[i];
@@ -271,6 +278,7 @@ class HomeScreen extends ConsumerWidget {
                             height: 280,
                             child: ListView.builder(
                               scrollDirection: Axis.horizontal,
+                              primary: false,
                               padding: const EdgeInsets.symmetric(horizontal: 16),
                               itemCount: products.length,
                               itemBuilder: (context, i) {
@@ -292,14 +300,11 @@ class HomeScreen extends ConsumerWidget {
                   SliverToBoxAdapter(
                     child: ColoredBox(
                       color: const Color(0xFFF7F7F7),
-                      child: SizedBox(height: totals.itemCount > 0 ? 88 : 24),
+                      child: SizedBox(height: scrollBottomPad),
                     ),
                   ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
               if (totals.itemCount > 0)
                 Positioned(

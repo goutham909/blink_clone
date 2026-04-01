@@ -53,6 +53,8 @@ class _LargeDealContent extends StatelessWidget {
       children: [
         Text(
           deal.title,
+          maxLines: 3,
+          overflow: TextOverflow.ellipsis,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 color: Colors.white,
                 fontWeight: FontWeight.w800,
@@ -61,6 +63,8 @@ class _LargeDealContent extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           deal.subtitle,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
           style: Theme.of(context).textTheme.labelMedium?.copyWith(
                 color: Colors.white.withValues(alpha: 0.95),
               ),
@@ -114,50 +118,89 @@ class _SmallDealContent extends StatelessWidget {
   Widget build(BuildContext context) {
     final titleColor = isLightCard ? Colors.black87 : Colors.white;
     final subColor = isLightCard ? Colors.black54 : Colors.white70;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          deal.discountLabel,
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: const Color(0xFFE11D48),
-                fontWeight: FontWeight.w800,
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final thumbnailHeight = (constraints.maxHeight * 0.28).clamp(24.0, 32.0);
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    deal.discountLabel,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: const Color(0xFFE11D48),
+                          fontWeight: FontWeight.w800,
+                          fontSize: 9,
+                        ),
+                  ),
+                  const SizedBox(height: 2),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Flexible(
+                          flex: 2,
+                          child: Text(
+                            deal.title,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                  color: titleColor,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 11,
+                                  height: 1.1,
+                                ),
+                          ),
+                        ),
+                        const SizedBox(height: 1),
+                        Flexible(
+                          flex: 2,
+                          child: Text(
+                            deal.subtitle,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                  color: subColor,
+                                  fontSize: 9,
+                                  height: 1.1,
+                                ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          deal.title,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                color: titleColor,
-                fontWeight: FontWeight.w700,
+            ),
+            const SizedBox(height: 3),
+            SizedBox(
+              height: thumbnailHeight,
+              child: Row(
+                children: deal.thumbnailHints.take(3).map((h) {
+                  return Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 3),
+                      child: ProductImagePlaceholder(
+                        imageHint: h,
+                        accent: Theme.of(context).colorScheme.primary,
+                        height: thumbnailHeight,
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                    ),
+                  );
+                }).toList(),
               ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          deal.subtitle,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(color: subColor),
-        ),
-        const Spacer(),
-        Row(
-          children: deal.thumbnailHints.take(3).map((h) {
-            return Expanded(
-              child: Padding(
-                padding: const EdgeInsets.only(right: 4),
-                child: ProductImagePlaceholder(
-                  imageHint: h,
-                  accent: Theme.of(context).colorScheme.primary,
-                  height: 36,
-                  borderRadius: BorderRadius.circular(6),
-                ),
-              ),
-            );
-          }).toList(),
-        ),
-      ],
+            ),
+          ],
+        );
+      },
     );
   }
 }
