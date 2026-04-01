@@ -4,9 +4,14 @@ import '../../../data/models/deal_card.dart';
 import '../../../widgets/deal_card_widget.dart';
 
 class DealCardsGrid extends StatelessWidget {
-  const DealCardsGrid({super.key, required this.deals});
+  const DealCardsGrid({
+    super.key,
+    required this.deals,
+    this.onDealTap,
+  });
 
   final List<DealCardData> deals;
+  final ValueChanged<DealCardData>? onDealTap;
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +32,11 @@ class DealCardsGrid extends StatelessWidget {
               children: [
                 Expanded(
                   flex: 5,
-                  child: DealCardWidget(deal: large, isLarge: true),
+                  child: DealCardWidget(
+                    deal: large,
+                    isLarge: true,
+                    onTap: onDealTap != null ? () => onDealTap!(large) : null,
+                  ),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
@@ -41,13 +50,19 @@ class DealCardsGrid extends StatelessWidget {
                                 children: [
                                   Expanded(
                                     child: small.isNotEmpty
-                                        ? DealCardWidget(deal: small[0])
+                                        ? DealCardWidget(
+                                            deal: small[0],
+                                            onTap: onDealTap != null ? () => onDealTap!(small[0]) : null,
+                                          )
                                         : const SizedBox.shrink(),
                                   ),
                                   const SizedBox(width: 8),
                                   Expanded(
                                     child: small.length > 1
-                                        ? DealCardWidget(deal: small[1])
+                                        ? DealCardWidget(
+                                            deal: small[1],
+                                            onTap: onDealTap != null ? () => onDealTap!(small[1]) : null,
+                                          )
                                         : const SizedBox.shrink(),
                                   ),
                                 ],
@@ -59,13 +74,19 @@ class DealCardsGrid extends StatelessWidget {
                                 children: [
                                   Expanded(
                                     child: small.length > 2
-                                        ? DealCardWidget(deal: small[2])
+                                        ? DealCardWidget(
+                                            deal: small[2],
+                                            onTap: onDealTap != null ? () => onDealTap!(small[2]) : null,
+                                          )
                                         : const SizedBox.shrink(),
                                   ),
                                   const SizedBox(width: 8),
                                   Expanded(
                                     child: small.length > 3
-                                        ? DealCardWidget(deal: small[3])
+                                        ? DealCardWidget(
+                                            deal: small[3],
+                                            onTap: onDealTap != null ? () => onDealTap!(small[3]) : null,
+                                          )
                                         : const SizedBox.shrink(),
                                   ),
                                 ],

@@ -13,6 +13,7 @@ import '../features/orders/orders_screen.dart';
 import '../features/print/print_screen.dart';
 import '../features/product_detail/product_detail_screen.dart';
 import '../features/search/search_screen.dart';
+import '../features/wishlist/wishlist_screen.dart';
 import 'app_shell.dart';
 
 final _rootKey = GlobalKey<NavigatorState>(debugLabel: 'root');
@@ -87,6 +88,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: 'account',
         parentNavigatorKey: _rootKey,
         builder: (context, state) => const AccountScreen(),
+      ),
+      GoRoute(
+        path: '/wishlist',
+        name: 'wishlist',
+        parentNavigatorKey: _rootKey,
+        builder: (context, state) => const WishlistScreen(),
       ),
       GoRoute(
         path: '/cart',

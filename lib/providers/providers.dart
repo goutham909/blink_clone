@@ -1,9 +1,24 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'dart:async';
+import 'dart:convert';
 
+import 'package:flutter/scheduler.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../core/order_delivery_timeline.dart';
 import '../data/models/address.dart';
 import '../data/models/order_models.dart';
+import '../data/models/product.dart';
 import '../data/repositories/catalog_repository.dart';
 import '../data/sources/mock_catalog_source.dart';
+
+/// Overridden in [main] after `SharedPreferences.getInstance()`.
+final sharedPreferencesProvider = Provider<SharedPreferences>((ref) {
+  throw StateError('sharedPreferencesProvider must be overridden in main()');
+});
+
+const _ordersPrefsKey = 'blink_clone_orders_v1';
+const _maxPersistedOrders = 3;
 
 final mockCatalogSourceProvider = Provider<MockCatalogSource>((ref) {
   return MockCatalogSource();
@@ -63,14 +78,144 @@ final cartLinesProvider = Provider<List<CartLine>>((ref) {
 });
 
 class OrdersNotifier extends Notifier<List<OrderRecord>> {
-  @override
-  List<OrderRecord> build() => [];
+  final Map<String, List<Timer>> _timersByOrderId = {};
 
-  void add(OrderRecord order) {
-    state = [order, ...state];
+  @override
+  List<OrderRecord> build() {
+    ref.onDispose(() {
+      for (final list in _timersByOrderId.values) {
+        for (final t in list) {
+          t.cancel();
+        }
+      }
+      _timersByOrderId.clear();
+    });
+
+    final prefs = ref.watch(sharedPreferencesProvider);
+    final raw = prefs.getString(_ordersPrefsKey);
+    if (raw == null || raw.isEmpty) return [];
+
+    try {
+      final decoded = jsonDecode(raw) as List<dynamic>;
+      final loaded = decoded
+          .map((e) => OrderRecord.fromJson(e as Map<String, dynamic>))
+          .map(OrderDeliveryTimeline.reconcileOrderClock)
+          .take(_maxPersistedOrders)
+          .toList();
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        for (final o in loaded) {
+          _scheduleStatusProgression(o.id);
+        }
+        _persistOrders();
+      });
+      return loaded;
+    } catch (_) {
+      return [];
+    }
   }
 
-  void clear() => state = [];
+  void _persistOrders() {
+    final prefs = ref.read(sharedPreferencesProvider);
+    final snapshot = List<OrderRecord>.from(state);
+    unawaited(_writeOrdersPrefs(prefs, snapshot));
+  }
+
+  static Future<void> _writeOrdersPrefs(
+    SharedPreferences prefs,
+    List<OrderRecord> orders,
+  ) async {
+    try {
+      final payload = jsonEncode(orders.map((e) => e.toJson()).toList());
+      await prefs.setString(_ordersPrefsKey, payload);
+    } catch (_) {}
+  }
+
+  void _cancelTimers(String orderId) {
+    _timersByOrderId[orderId]?.forEach((t) => t.cancel());
+    _timersByOrderId.remove(orderId);
+  }
+
+  void add(OrderRecord order) {
+    final next = [order, ...state].take(_maxPersistedOrders).toList();
+    final kept = next.map((o) => o.id).toSet();
+    for (final id in state.map((o) => o.id)) {
+      if (!kept.contains(id)) _cancelTimers(id);
+    }
+    state = next;
+    _scheduleStatusProgression(order.id);
+    _persistOrders();
+  }
+
+  /// Packed at 30s, ordered at 1 min, delivered at 11 min from [OrderRecord.placedAt].
+  void _scheduleStatusProgression(String orderId) {
+    _cancelTimers(orderId);
+
+    var idx = state.indexWhere((o) => o.id == orderId);
+    if (idx < 0) return;
+
+    final reconciled = OrderDeliveryTimeline.reconcileOrderClock(state[idx]);
+    if (reconciled.status != state[idx].status) {
+      state = [
+        ...state.sublist(0, idx),
+        reconciled,
+        ...state.sublist(idx + 1),
+      ];
+      _persistOrders();
+      idx = state.indexWhere((o) => o.id == orderId);
+    }
+
+    final order = state[idx];
+    if (order.status == OrderStatus.delivered) return;
+
+    final placed = order.placedAt;
+    final now = DateTime.now();
+
+    Duration delayUntil(DateTime milestone) {
+      final d = milestone.difference(now);
+      return d.isNegative ? Duration.zero : d;
+    }
+
+    void bump(OrderStatus status) {
+      final i = state.indexWhere((o) => o.id == orderId);
+      if (i < 0) return;
+      if (OrderStatus.values.indexOf(state[i].status) >= OrderStatus.values.indexOf(status)) {
+        return;
+      }
+      state = [
+        ...state.sublist(0, i),
+        state[i].copyWith(status: status),
+        ...state.sublist(i + 1),
+      ];
+      _persistOrders();
+    }
+
+    final milestones = <(OrderStatus, DateTime)>[
+      (OrderStatus.packed, placed.add(const Duration(seconds: OrderDeliveryTimeline.packedAfterSeconds))),
+      (OrderStatus.ordered, placed.add(const Duration(seconds: OrderDeliveryTimeline.orderedAfterSeconds))),
+      (OrderStatus.delivered, placed.add(const Duration(seconds: OrderDeliveryTimeline.deliveredAfterSeconds))),
+    ];
+
+    final timers = <Timer>[];
+    final currentRank = OrderStatus.values.indexOf(order.status);
+    for (final (target, at) in milestones) {
+      if (currentRank >= OrderStatus.values.indexOf(target)) continue;
+      timers.add(Timer(delayUntil(at), () => bump(target)));
+    }
+    _timersByOrderId[orderId] = timers;
+  }
+
+  void clear() {
+    for (final list in _timersByOrderId.values) {
+      for (final t in list) {
+        t.cancel();
+      }
+    }
+    _timersByOrderId.clear();
+    state = [];
+    unawaited(
+      ref.read(sharedPreferencesProvider).remove(_ordersPrefsKey),
+    );
+  }
 }
 
 final ordersProvider = NotifierProvider<OrdersNotifier, List<OrderRecord>>(
@@ -130,3 +275,33 @@ final selectedAddressProvider =
 
 /// Mock wallet balance shown in header (₹).
 final walletBalanceProvider = StateProvider<int>((ref) => 0);
+
+/// Account → Appearance (drives app theme).
+final appearanceDarkProvider = StateProvider<bool>((ref) => true);
+
+/// Account → hide sensitive categories (e.g. pharma) on home & search.
+final hideSensitiveProvider = StateProvider<bool>((ref) => false);
+
+class WishlistNotifier extends Notifier<Set<String>> {
+  @override
+  Set<String> build() => {};
+
+  void toggle(String productId) {
+    final next = Set<String>.from(state);
+    if (next.contains(productId)) {
+      next.remove(productId);
+    } else {
+      next.add(productId);
+    }
+    state = next;
+  }
+}
+
+final wishlistProvider = NotifierProvider<WishlistNotifier, Set<String>>(
+  WishlistNotifier.new,
+);
+
+bool visibleWithSensitiveFilter(Product p, bool hideSensitive) {
+  if (!hideSensitive) return true;
+  return !p.isSensitiveCategory;
+}

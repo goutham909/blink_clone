@@ -12,18 +12,20 @@ class ProductDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final repo = ref.watch(catalogRepositoryProvider);
+    final catalogAsync = ref.watch(catalogProvider);
+    final inWishlist = ref.watch(wishlistProvider).contains(productId);
 
-    return FutureBuilder(
-      future: repo.getProduct(productId),
-      builder: (context, snap) {
-        if (!snap.hasData || snap.data == null) {
+    return catalogAsync.when(
+      loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
+      error: (e, _) => Scaffold(body: Center(child: Text('Error: $e'))),
+      data: (catalog) {
+        final p = catalog.productById[productId];
+        if (p == null) {
           return Scaffold(
             appBar: AppBar(),
             body: const Center(child: Text('Product not found')),
           );
         }
-        final p = snap.data!;
         final scheme = Theme.of(context).colorScheme;
         final discount = p.discountPercent;
 
@@ -34,6 +36,14 @@ class ProductDetailScreen extends ConsumerWidget {
               label: 'product_title_$productId',
               child: Text(p.name, maxLines: 1, overflow: TextOverflow.ellipsis),
             ),
+            actions: [
+              IconButton(
+                tooltip: inWishlist ? 'Remove from wishlist' : 'Add to wishlist',
+                onPressed: () => ref.read(wishlistProvider.notifier).toggle(p.id),
+                icon: Icon(inWishlist ? Icons.favorite : Icons.favorite_border),
+                color: inWishlist ? Colors.redAccent : null,
+              ),
+            ],
           ),
           body: ListView(
             padding: const EdgeInsets.all(16),

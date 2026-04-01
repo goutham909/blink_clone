@@ -53,11 +53,19 @@ class CartScreen extends ConsumerWidget {
                             children: [
                               Semantics(
                                 label: 'cart_line_title_${p.id}',
-                                child: Text(
-                                  p.name,
-                                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                                        fontWeight: FontWeight.w600,
-                                      ),
+                                child: InkWell(
+                                  onTap: () => context.pushNamed(
+                                    'product',
+                                    pathParameters: {'id': p.id},
+                                  ),
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Text(
+                                    p.name,
+                                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                          fontWeight: FontWeight.w600,
+                                          color: Theme.of(context).colorScheme.primary,
+                                        ),
+                                  ),
                                 ),
                               ),
                               const SizedBox(height: 4),

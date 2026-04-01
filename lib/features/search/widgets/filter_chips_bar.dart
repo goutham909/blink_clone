@@ -3,15 +3,28 @@ import 'package:flutter/material.dart';
 import '../../../core/constants.dart';
 
 class FilterChipsBar extends StatelessWidget {
-  const FilterChipsBar({super.key});
+  const FilterChipsBar({
+    super.key,
+    required this.sortLabel,
+    required this.onFiltersTap,
+    required this.onSortTap,
+    required this.onBrandTap,
+    required this.onFlavourTap,
+  });
+
+  final String sortLabel;
+  final VoidCallback onFiltersTap;
+  final VoidCallback onSortTap;
+  final VoidCallback onBrandTap;
+  final VoidCallback onFlavourTap;
 
   @override
   Widget build(BuildContext context) {
-    final chips = [
-      (icon: Icons.tune, label: 'Filters'),
-      (icon: Icons.swap_vert, label: 'Sort'),
-      (icon: null, label: 'Brand'),
-      (icon: null, label: 'Flavour'),
+    final chips = <({IconData? icon, String label, VoidCallback onPressed})>[
+      (icon: Icons.tune, label: 'Filters', onPressed: onFiltersTap),
+      (icon: Icons.swap_vert, label: sortLabel, onPressed: onSortTap),
+      (icon: null, label: 'Brand', onPressed: onBrandTap),
+      (icon: null, label: 'Flavour', onPressed: onFlavourTap),
     ];
 
     return SizedBox(
@@ -31,7 +44,7 @@ class FilterChipsBar extends StatelessWidget {
             labelStyle: const TextStyle(color: Colors.white, fontSize: 13),
             backgroundColor: kBlinkDarkSurface,
             side: const BorderSide(color: Colors.white24),
-            onPressed: () {},
+            onPressed: c.onPressed,
           );
         },
       ),

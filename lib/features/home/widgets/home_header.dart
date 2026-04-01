@@ -11,11 +11,13 @@ class HomeHeader extends ConsumerWidget {
     required this.locationTitle,
     required this.deliveryMinutes,
     required this.onLocationTap,
+    this.showSurgeBadge = false,
   });
 
   final String locationTitle;
   final int deliveryMinutes;
   final VoidCallback onLocationTap;
+  final bool showSurgeBadge;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -55,13 +57,45 @@ class HomeHeader extends ConsumerWidget {
                                 fontWeight: FontWeight.w600,
                               ),
                         ),
-                        Text(
-                          '$deliveryMinutes minutes',
-                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                color: Colors.black,
-                                fontWeight: FontWeight.w900,
-                                height: 1.1,
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Flexible(
+                              child: Text(
+                                '$deliveryMinutes minutes',
+                                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.w900,
+                                      height: 1.1,
+                                    ),
                               ),
+                            ),
+                            if (showSurgeBadge) ...[
+                              const SizedBox(width: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF0D9488),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(Icons.trending_up, size: 14, color: Colors.white.withValues(alpha: 0.95)),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      'Surge applicable',
+                                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 10,
+                                          ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
                         const SizedBox(height: 6),
                         InkWell(
@@ -89,25 +123,68 @@ class HomeHeader extends ConsumerWidget {
                   ),
                   Row(
                     children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: kBlinkGreen,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.account_balance_wallet_outlined, color: Colors.white, size: 18),
-                            const SizedBox(width: 4),
-                            Text(
-                              '₹$wallet',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 13,
+                      Material(
+                        color: kBlinkGreen,
+                        borderRadius: BorderRadius.circular(20),
+                        child: InkWell(
+                          onTap: () {
+                            showModalBottomSheet<void>(
+                              context: context,
+                              showDragHandle: true,
+                              builder: (ctx) => Padding(
+                                padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  children: [
+                                    Text(
+                                      'Blinkit Money',
+                                      style: Theme.of(ctx).textTheme.titleMedium?.copyWith(
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black87,
+                                          ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      'Balance: ₹$wallet',
+                                      style: Theme.of(ctx).textTheme.bodyLarge?.copyWith(
+                                            color: Colors.black54,
+                                          ),
+                                    ),
+                                    const SizedBox(height: 16),
+                                    FilledButton(
+                                      onPressed: () {
+                                        ref.read(walletBalanceProvider.notifier).state += 500;
+                                        Navigator.pop(ctx);
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(content: Text('Added ₹500 (demo)')),
+                                        );
+                                      },
+                                      child: const Text('Add ₹500'),
+                                    ),
+                                  ],
+                                ),
                               ),
+                            );
+                          },
+                          borderRadius: BorderRadius.circular(20),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.account_balance_wallet_outlined, color: Colors.white, size: 18),
+                                const SizedBox(width: 4),
+                                Text(
+                                  '₹$wallet',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
+                          ),
                         ),
                       ),
                       const SizedBox(width: 8),

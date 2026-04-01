@@ -28,6 +28,8 @@ class ProductCard extends ConsumerWidget {
     final scheme = Theme.of(context).colorScheme;
     final discount = product.discountPercent;
     final cartQty = ref.watch(cartProvider)[product.id] ?? 0;
+    final wishlist = ref.watch(wishlistProvider);
+    final inWishlist = wishlist.contains(product.id);
 
     return Semantics(
       label: 'product_card_${product.id}',
@@ -137,8 +139,12 @@ class ProductCard extends ConsumerWidget {
                         visualDensity: VisualDensity.compact,
                         padding: EdgeInsets.zero,
                         constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
-                        onPressed: () {},
-                        icon: const Icon(Icons.favorite_border, size: 18, color: Colors.white70),
+                        onPressed: () => ref.read(wishlistProvider.notifier).toggle(product.id),
+                        icon: Icon(
+                          inWishlist ? Icons.favorite : Icons.favorite_border,
+                          size: 18,
+                          color: inWishlist ? Colors.redAccent : Colors.white70,
+                        ),
                       ),
                     ),
                     if (!product.inStock)

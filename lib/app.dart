@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'core/constants.dart';
+import 'providers/providers.dart';
 import 'routing/app_router.dart';
 import 'widgets/debug_panel_sheet.dart';
 
@@ -13,11 +14,12 @@ class BlinkCloneApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(appRouterProvider);
+    final dark = ref.watch(appearanceDarkProvider);
 
     return MaterialApp.router(
       title: 'Blink Clone',
       debugShowCheckedModeBanner: false,
-      theme: buildBlinkTheme(Brightness.dark),
+      theme: buildBlinkTheme(dark ? Brightness.dark : Brightness.light),
       routerConfig: router,
       builder: (context, child) {
         var result = child ?? const SizedBox.shrink();
@@ -46,6 +48,47 @@ class BlinkCloneApp extends ConsumerWidget {
 }
 
 ThemeData buildBlinkTheme(Brightness brightness) {
+  if (brightness == Brightness.light) {
+    final base = ThemeData(
+      useMaterial3: true,
+      brightness: Brightness.light,
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: kBlinkGreen,
+        brightness: Brightness.light,
+        secondary: kBlinkAmber,
+      ),
+      scaffoldBackgroundColor: const Color(0xFFF2F2F7),
+      cardTheme: CardThemeData(
+        color: Colors.white,
+        elevation: 0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+      appBarTheme: const AppBarTheme(
+        centerTitle: false,
+        elevation: 0,
+        backgroundColor: Color(0xFFF2F2F7),
+        foregroundColor: Colors.black87,
+      ),
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: Colors.white,
+        indicatorColor: kBlinkGreen.withValues(alpha: 0.25),
+        labelTextStyle: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return const TextStyle(color: kBlinkGreen, fontWeight: FontWeight.w600, fontSize: 12);
+          }
+          return const TextStyle(color: Colors.black54, fontSize: 12);
+        }),
+        iconTheme: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return const IconThemeData(color: kBlinkGreen);
+          }
+          return const IconThemeData(color: Colors.black45);
+        }),
+      ),
+    );
+    return base.copyWith(textTheme: GoogleFonts.dmSansTextTheme(base.textTheme));
+  }
+
   final base = ThemeData(
     useMaterial3: true,
     brightness: brightness,

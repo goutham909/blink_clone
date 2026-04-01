@@ -8,6 +8,7 @@ class DealCardData {
     required this.discountLabel,
     required this.accentHex,
     this.thumbnailHints = const [],
+    this.targetCategoryId,
   });
 
   final String id;
@@ -16,6 +17,9 @@ class DealCardData {
   final String discountLabel;
   final String accentHex;
   final List<String> thumbnailHints;
+
+  /// When set, tapping the deal opens search scoped to this category.
+  final String? targetCategoryId;
 
   Color get accentColor {
     final hex = accentHex.replaceAll('#', '');
@@ -41,6 +45,7 @@ class DealCardData {
               ?.map((e) => e as String)
               .toList() ??
           const [],
+      targetCategoryId: json['targetCategoryId'] as String?,
     );
   }
 }

@@ -201,6 +201,35 @@
       text-align: center;
       max-width: 420px;
     }
+
+    .preview-actions {
+      margin-top: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .preview-actions button {
+      font: inherit;
+      font-size: 0.78rem;
+      padding: 8px 14px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(125, 211, 168, 0.2);
+      color: #b8e7c8;
+      cursor: pointer;
+    }
+
+    .preview-actions button:hover {
+      background: rgba(125, 211, 168, 0.35);
+    }
+
+    .preview-actions button.secondary {
+      background: rgba(255, 255, 255, 0.08);
+      color: rgba(255, 255, 255, 0.85);
+    }
   </style>
 </head>
 <body>
@@ -212,9 +241,15 @@
       · <a href="iphone_preview.html">Refresh this page</a>
     </p>
     <p style="margin-top:10px;padding:10px 12px;background:rgba(255,193,7,0.12);border-radius:10px;border:1px solid rgba(255,193,7,0.25);color:rgba(255,235,180,0.95);text-align:left;">
-      <strong>Seeing an old UI?</strong> Serve the <code style="color:#b8e7c8">build/web</code> folder (not <code style="color:#b8e7c8">web/</code> alone), then run
-      <code style="color:#b8e7c8">flutter build web</code> after code changes. Hard-reload the iframe: right-click inside the phone → Reload Frame, or press <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>R</kbd> with DevTools open and cache disabled.
+      <strong>Why the app inside the phone doesn’t update?</strong> This page only wraps an iframe. The <strong>compiled</strong> app lives in <code style="color:#b8e7c8">main.dart.js</code> inside <code style="color:#b8e7c8">build/web</code>. After you change Dart code you must run <code style="color:#b8e7c8">flutter build web</code> again and restart your static server (or replace <code style="color:#b8e7c8">build/web</code>). Flutter also installs a <strong>service worker</strong> that caches old JS—use the button below or Chrome DevTools → Application → Clear site data.
     </p>
+    <p style="margin-top:8px;padding:10px 12px;background:rgba(255,255,255,0.06);border-radius:10px;border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.75);text-align:left;font-size:0.75rem;">
+      Easier local previews: <code style="color:#b8e7c8">flutter build web --pwa-strategy=none</code> (skips the service worker so refreshes pick up new builds more reliably).
+    </p>
+    <div class="preview-actions">
+      <button type="button" id="btn-reload-frame">Hard-reload app in phone</button>
+      <button type="button" class="secondary" id="btn-unregister-sw">Unregister service workers (then reload)</button>
+    </div>
   </div>
 
   <div class="scale-wrap">
@@ -249,9 +284,39 @@
   <script>
     (function () {
       var frame = document.getElementById('app-frame');
-      if (frame) {
-        frame.src = 'index.html?t=' + Date.now();
+
+      function loadAppUrl() {
+        return 'index.html?flutter_preview_cb=' + Date.now();
       }
+
+      function hardReloadFrame() {
+        if (!frame) return;
+        frame.src = 'about:blank';
+        setTimeout(function () {
+          frame.src = loadAppUrl();
+        }, 80);
+      }
+
+      /** Flutter registers the SW on this origin (same for iframe) — clear from the top window. */
+      function unregisterAllServiceWorkers() {
+        if (!navigator.serviceWorker || !navigator.serviceWorker.getRegistrations) {
+          return Promise.resolve();
+        }
+        return navigator.serviceWorker.getRegistrations().then(function (regs) {
+          return Promise.all(regs.map(function (r) { return r.unregister(); }));
+        });
+      }
+
+      if (frame) {
+        frame.src = loadAppUrl();
+      }
+
+      document.getElementById('btn-reload-frame')?.addEventListener('click', hardReloadFrame);
+      document.getElementById('btn-unregister-sw')?.addEventListener('click', function () {
+        unregisterAllServiceWorkers().then(function () {
+          hardReloadFrame();
+        });
+      });
     })();
   </script>
 </body>

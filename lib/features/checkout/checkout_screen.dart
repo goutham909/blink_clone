@@ -13,9 +13,23 @@ class CheckoutScreen extends ConsumerStatefulWidget {
 }
 
 class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
-  final _line1 = TextEditingController(text: '12 Sample Street');
-  final _city = TextEditingController(text: 'Bengaluru');
+  late final TextEditingController _line1;
+  late final TextEditingController _city;
   String _payment = 'Cash on delivery';
+
+  @override
+  void initState() {
+    super.initState();
+    final addr = ref.read(selectedAddressProvider);
+    if (addr != null) {
+      final parts = addr.fullAddress.split(',').map((s) => s.trim()).toList();
+      _line1 = TextEditingController(text: parts.isNotEmpty ? parts.first : addr.fullAddress);
+      _city = TextEditingController(text: parts.length > 1 ? parts.sublist(1).join(', ') : '');
+    } else {
+      _line1 = TextEditingController(text: '12 Sample Street');
+      _city = TextEditingController(text: 'Bengaluru');
+    }
+  }
 
   @override
   void dispose() {

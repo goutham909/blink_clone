@@ -1,0 +1,23 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Flutter Web (live reload + iPhone preview URL)",
+      "type": "dart",
+      "request": "launch",
+      "program": "lib/main.dart",
+      "deviceId": "web-server",
+      "args": [
+        "--web-port=8080",
+        "--web-hostname=127.0.0.1"
+      ]
+    },
+    {
+      "name": "Flutter Web (Chrome)",
+      "type": "dart",
+      "request": "launch",
+      "program": "lib/main.dart",
+      "deviceId": "chrome"
+    }
+  ]
+}

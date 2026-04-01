@@ -42,11 +42,33 @@ class Product {
 
   int get saveAmount => mrp > salePrice ? mrp - salePrice : 0;
 
+  /// Used with “hide sensitive” — pharma-style aisle is hidden when enabled.
+  bool get isSensitiveCategory => categoryId == 'cat_pharma';
+
   bool get isLowStock {
     if (!inStock) return false;
     final s = stockLeft;
     return s != null && s > 0 && s <= 5;
   }
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'name': name,
+        'mrp': mrp,
+        'salePrice': salePrice,
+        'unit': unit,
+        'categoryId': categoryId,
+        'imageHint': imageHint,
+        'inStock': inStock,
+        'rating': rating,
+        'ratingCount': ratingCount,
+        'deliveryMinutes': deliveryMinutes,
+        'stockLeft': stockLeft,
+        'optionsCount': optionsCount,
+        'boughtEarlier': boughtEarlier,
+        'isAd': isAd,
+        'isVegetarian': isVegetarian,
+      };
 
   factory Product.fromJson(Map<String, dynamic> json) {
     return Product(

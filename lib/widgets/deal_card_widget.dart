@@ -5,10 +5,16 @@ import '../data/models/deal_card.dart';
 import 'product_image_placeholder.dart';
 
 class DealCardWidget extends StatelessWidget {
-  const DealCardWidget({super.key, required this.deal, this.isLarge = false});
+  const DealCardWidget({
+    super.key,
+    required this.deal,
+    this.isLarge = false,
+    this.onTap,
+  });
 
   final DealCardData deal;
   final bool isLarge;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -17,25 +23,31 @@ class DealCardWidget extends StatelessWidget {
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(14),
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: isLarge
-              ? LinearGradient(
-                  colors: [
-                    accent,
-                    accent.withValues(alpha: 0.85),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                )
-              : null,
-          color: isLarge ? null : (isLightCard ? Colors.white : kBlinkDarkCard),
-          border: Border.all(color: Colors.white12),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: isLarge
+                  ? LinearGradient(
+                      colors: [
+                        accent,
+                        accent.withValues(alpha: 0.85),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    )
+                  : null,
+              color: isLarge ? null : (isLightCard ? Colors.white : kBlinkDarkCard),
+              border: Border.all(color: Colors.white12),
+            ),
+            padding: const EdgeInsets.all(10),
+            child: isLarge
+                ? _LargeDealContent(deal: deal)
+                : _SmallDealContent(deal: deal, isLightCard: isLightCard),
+          ),
         ),
-        padding: const EdgeInsets.all(10),
-        child: isLarge
-            ? _LargeDealContent(deal: deal)
-            : _SmallDealContent(deal: deal, isLightCard: isLightCard),
       ),
     );
   }

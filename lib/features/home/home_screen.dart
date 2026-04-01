@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -10,14 +12,22 @@ import 'widgets/address_bottom_sheet.dart';
 import 'widgets/deal_cards_grid.dart';
 import 'widgets/home_header.dart';
 
-class HomeScreen extends ConsumerWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+  int _categoryIndex = 0;
+
+  @override
+  Widget build(BuildContext context) {
     final async = ref.watch(catalogProvider);
     final totals = ref.watch(cartTotalsProvider);
     final selected = ref.watch(selectedAddressProvider);
+    final hideSensitive = ref.watch(hideSensitiveProvider);
 
     return async.when(
       loading: () => const Scaffold(
@@ -67,35 +77,8 @@ class HomeScreen extends ConsumerWidget {
                       color: const Color(0xFFF7F7F7),
                       child: Padding(
                         padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-                        child: InkWell(
+                        child: _HomeSearchEntryBar(
                           onTap: () => context.pushNamed('search'),
-                          borderRadius: BorderRadius.circular(12),
-                          child: Container(
-                            key: const Key('home_search_entry'),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 14,
-                              vertical: 14,
-                            ),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF3A3A3C),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Row(
-                              children: [
-                                const Icon(Icons.search, color: Colors.white54),
-                                const SizedBox(width: 10),
-                                Expanded(
-                                  child: Text(
-                                    'Search \'yoga\'',
-                                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                          color: Colors.white54,
-                                        ),
-                                  ),
-                                ),
-                                const Icon(Icons.mic_none, color: Colors.white54),
-                              ],
-                            ),
-                          ),
                         ),
                       ),
                     ),
@@ -112,11 +95,18 @@ class HomeScreen extends ConsumerWidget {
                           itemCount: catalog.categories.length,
                           itemBuilder: (context, i) {
                             final c = catalog.categories[i];
-                            final isFirstCategory = i == 0;
+                            final isSelected = i == _categoryIndex;
                             return Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 10),
                               child: InkWell(
-                                onTap: () {},
+                                onTap: () {
+                                  setState(() => _categoryIndex = i);
+                                  if (c.id == 'cat_all') return;
+                                  context.pushNamed(
+                                    'search',
+                                    queryParameters: {'category': c.id},
+                                  );
+                                },
                                 child: Column(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
@@ -130,7 +120,7 @@ class HomeScreen extends ConsumerWidget {
                                             color: Colors.white,
                                             shape: BoxShape.circle,
                                             border: Border.all(
-                                              color: isFirstCategory ? Colors.black : Colors.transparent,
+                                              color: isSelected ? Colors.black : Colors.transparent,
                                               width: 2,
                                             ),
                                             boxShadow: [
@@ -175,10 +165,10 @@ class HomeScreen extends ConsumerWidget {
                                       c.label,
                                       style: Theme.of(context).textTheme.labelMedium?.copyWith(
                                             color: Colors.black87,
-                                            fontWeight: isFirstCategory ? FontWeight.w800 : FontWeight.w500,
+                                            fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
                                           ),
                                     ),
-                                    if (isFirstCategory)
+                                    if (isSelected)
                                       Container(
                                         margin: const EdgeInsets.only(top: 4),
                                         height: 3,
@@ -216,12 +206,21 @@ class HomeScreen extends ConsumerWidget {
                               ...catalog.poweredBy.map(
                                 (b) => Padding(
                                   padding: const EdgeInsets.only(right: 8),
-                                  child: Text(
-                                    b,
-                                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                                          color: Colors.black54,
-                                          fontWeight: FontWeight.w600,
-                                        ),
+                                  child: InkWell(
+                                    onTap: () => context.pushNamed(
+                                      'search',
+                                      queryParameters: {'q': b},
+                                    ),
+                                    borderRadius: BorderRadius.circular(4),
+                                    child: Text(
+                                      b,
+                                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                                            color: Colors.black54,
+                                            fontWeight: FontWeight.w600,
+                                            decoration: TextDecoration.underline,
+                                            decorationColor: Colors.black38,
+                                          ),
+                                    ),
                                   ),
                                 ),
                               ),
@@ -235,7 +234,18 @@ class HomeScreen extends ConsumerWidget {
                       color: const Color(0xFFF7F7F7),
                       child: Padding(
                         padding: const EdgeInsets.only(bottom: 16),
-                        child: DealCardsGrid(deals: catalog.dealCards),
+                        child: DealCardsGrid(
+                          deals: catalog.dealCards,
+                          onDealTap: (deal) {
+                            final id = deal.targetCategoryId;
+                            if (id != null) {
+                              context.pushNamed(
+                                'search',
+                                queryParameters: {'category': id},
+                              );
+                            }
+                          },
+                        ),
                       ),
                     ),
                   ),
@@ -244,7 +254,12 @@ class HomeScreen extends ConsumerWidget {
                       color: const Color(0xFFF7F7F7),
                       child: Padding(
                         padding: const EdgeInsets.fromLTRB(0, 0, 0, 12),
-                        child: _LowestPricesBanner(),
+                        child: _LowestPricesBanner(
+                          onTap: () => context.pushNamed(
+                            'search',
+                            queryParameters: {'rail': 'rail_lowest'},
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -253,6 +268,7 @@ class HomeScreen extends ConsumerWidget {
                     final products = rail.productIds
                         .map((id) => byId[id])
                         .whereType()
+                        .where((p) => visibleWithSensitiveFilter(p, hideSensitive))
                         .toList();
                     if (products.isEmpty) return <Widget>[];
                     return [
@@ -357,34 +373,162 @@ class HomeScreen extends ConsumerWidget {
   }
 }
 
+class _HomeSearchEntryBar extends StatefulWidget {
+  const _HomeSearchEntryBar({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  State<_HomeSearchEntryBar> createState() => _HomeSearchEntryBarState();
+}
+
+class _HomeSearchEntryBarState extends State<_HomeSearchEntryBar> {
+  static const _hints = [
+    'yoga',
+    'milk',
+    'bread',
+    'diapers',
+    'chocolate',
+    'bananas',
+    'coffee',
+    'paneer',
+    'ice cream',
+    'atta',
+  ];
+
+  static const _hintInterval = Duration(seconds: 3);
+
+  Timer? _timer;
+  int _index = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer.periodic(_hintInterval, (_) {
+      if (!mounted) return;
+      setState(() => _index = (_index + 1) % _hints.length);
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final hintStyle = Theme.of(context).textTheme.bodyLarge?.copyWith(
+          color: Colors.white54,
+        );
+
+    return InkWell(
+      onTap: widget.onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        key: const Key('home_search_entry'),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+        decoration: BoxDecoration(
+          color: const Color(0xFF3A3A3C),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.search, color: Colors.white54),
+            const SizedBox(width: 10),
+            Expanded(
+              child: ClipRect(
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  heightFactor: 1,
+                  child: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 420),
+                    switchInCurve: Curves.easeOutCubic,
+                    switchOutCurve: Curves.easeInCubic,
+                    transitionBuilder: (child, animation) {
+                      final slide = Tween<Offset>(
+                        begin: const Offset(0, 0.22),
+                        end: Offset.zero,
+                      ).animate(CurvedAnimation(
+                        parent: animation,
+                        curve: Curves.easeOutCubic,
+                      ));
+                      return FadeTransition(
+                        opacity: animation,
+                        child: SlideTransition(
+                          position: slide,
+                          child: child,
+                        ),
+                      );
+                    },
+                    layoutBuilder: (currentChild, previousChildren) {
+                      return Stack(
+                        alignment: Alignment.centerLeft,
+                        clipBehavior: Clip.hardEdge,
+                        children: <Widget>[
+                          ...previousChildren,
+                          if (currentChild != null) currentChild,
+                        ],
+                      );
+                    },
+                    child: Text(
+                      'Search "${_hints[_index]}"',
+                      key: ValueKey<String>(_hints[_index]),
+                      style: hintStyle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const Icon(Icons.mic_none, color: Colors.white54),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _LowestPricesBanner extends StatelessWidget {
+  const _LowestPricesBanner({this.onTap});
+
+  final VoidCallback? onTap;
+
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: ClipPath(
-        clipper: _JaggedClipper(),
-        child: Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Color(0xFF3D2914),
-                Color(0xFF5C3D1E),
-              ],
-            ),
-          ),
-          child: Transform.rotate(
-            angle: -0.05,
-            child: Text(
-              'LOWEST PRICES EVER',
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    color: kBlinkAmber,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 0.5,
-                  ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(12),
+          child: ClipPath(
+            clipper: _JaggedClipper(),
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Color(0xFF3D2914),
+                    Color(0xFF5C3D1E),
+                  ],
+                ),
+              ),
+              child: Transform.rotate(
+                angle: -0.05,
+                child: Text(
+                  'LOWEST PRICES EVER',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        color: kBlinkAmber,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 0.5,
+                      ),
+                ),
+              ),
             ),
           ),
         ),

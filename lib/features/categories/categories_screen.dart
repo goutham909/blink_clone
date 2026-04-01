@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../core/category_icons.dart';
 import '../../providers/providers.dart';
@@ -32,7 +33,10 @@ class CategoriesScreen extends ConsumerWidget {
               final c = cats[i];
               return Card(
                 child: InkWell(
-                  onTap: () {},
+                  onTap: () => context.pushNamed(
+                    'search',
+                    queryParameters: {'category': c.id},
+                  ),
                   borderRadius: BorderRadius.circular(12),
                   child: Padding(
                     padding: const EdgeInsets.all(16),

@@ -1,15 +1,44 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/order_delivery_timeline.dart';
+import '../../data/models/order_models.dart';
 import '../../providers/providers.dart';
 
-class OrdersScreen extends ConsumerWidget {
+/// Order list with live ETA subtitles while any order is still in progress.
+class OrdersScreen extends ConsumerStatefulWidget {
   const OrdersScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<OrdersScreen> createState() => _OrdersScreenState();
+}
+
+class _OrdersScreenState extends ConsumerState<OrdersScreen> {
+  Timer? _tick;
+
+  bool _hasInFlight(List<OrderRecord> orders) {
+    for (final o in orders) {
+      if (o.status != OrderStatus.delivered) return true;
+    }
+    return false;
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final orders = ref.watch(ordersProvider);
+
+    final needsTick = orders.isNotEmpty && _hasInFlight(orders);
+    if (needsTick && _tick == null) {
+      _tick = Timer.periodic(const Duration(seconds: 1), (_) {
+        if (mounted) setState(() {});
+      });
+    } else if (!needsTick && _tick != null) {
+      _tick?.cancel();
+      _tick = null;
+    }
 
     return Scaffold(
       key: const Key('screen_orders'),
@@ -22,13 +51,15 @@ class OrdersScreen extends ConsumerWidget {
               separatorBuilder: (_, __) => const SizedBox(height: 12),
               itemBuilder: (context, i) {
                 final o = orders[i];
+                final eta = OrderDeliveryTimeline.liveListEta(o.placedAt, o.status);
                 return Card(
                   child: ListTile(
                     key: Key('order_tile_${o.id}'),
                     title: Text(o.id),
                     subtitle: Text(
-                      '${o.lines.length} items · ₹${o.total}',
+                      '${o.status.uiLabel} · $eta · ${o.lines.length} items · ₹${o.total}',
                     ),
+                    isThreeLine: true,
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () => context.pushNamed(
                       'orderDetail',
@@ -39,5 +70,11 @@ class OrdersScreen extends ConsumerWidget {
               },
             ),
     );
+  }
+
+  @override
+  void dispose() {
+    _tick?.cancel();
+    super.dispose();
   }
 }

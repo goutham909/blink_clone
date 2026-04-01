@@ -6,9 +6,6 @@ import '../../core/constants.dart';
 import '../../providers/providers.dart';
 import '../home/widgets/address_bottom_sheet.dart';
 
-final appearanceDarkProvider = StateProvider<bool>((ref) => true);
-final hideSensitiveProvider = StateProvider<bool>((ref) => false);
-
 class AccountScreen extends ConsumerWidget {
   const AccountScreen({super.key});
 
@@ -84,7 +81,20 @@ class AccountScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: 4),
                       TextButton(
-                        onPressed: () {},
+                        onPressed: () async {
+                          final now = DateTime.now();
+                          final picked = await showDatePicker(
+                            context: context,
+                            initialDate: DateTime(now.year - 25),
+                            firstDate: DateTime(1950),
+                            lastDate: now,
+                          );
+                          if (picked != null && context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Saved birthday: $picked (demo)')),
+                            );
+                          }
+                        },
                         style: TextButton.styleFrom(
                           padding: EdgeInsets.zero,
                           foregroundColor: kBlinkGreen,
@@ -113,7 +123,41 @@ class AccountScreen extends ConsumerWidget {
                 child: _QuickCard(
                   icon: Icons.account_balance_wallet_outlined,
                   label: 'Blinkit Money',
-                  onTap: () {},
+                  onTap: () {
+                    showModalBottomSheet<void>(
+                      context: context,
+                      showDragHandle: true,
+                      builder: (ctx) => Padding(
+                        padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Text(
+                              'Blinkit Money',
+                              style: Theme.of(ctx).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Balance: ₹${ref.read(walletBalanceProvider)}',
+                              style: Theme.of(ctx).textTheme.bodyLarge,
+                            ),
+                            const SizedBox(height: 16),
+                            FilledButton(
+                              onPressed: () {
+                                ref.read(walletBalanceProvider.notifier).state += 500;
+                                Navigator.pop(ctx);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Added ₹500 (demo)')),
+                                );
+                              },
+                              child: const Text('Add ₹500'),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ),
               const SizedBox(width: 10),
@@ -121,7 +165,39 @@ class AccountScreen extends ConsumerWidget {
                 child: _QuickCard(
                   icon: Icons.chat_bubble_outline,
                   label: 'Need help?',
-                  onTap: () {},
+                  onTap: () {
+                    showModalBottomSheet<void>(
+                      context: context,
+                      showDragHandle: true,
+                      builder: (ctx) => SafeArea(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            ListTile(
+                              leading: const Icon(Icons.support_agent_outlined),
+                              title: const Text('Chat with support'),
+                              onTap: () {
+                                Navigator.pop(ctx);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Support chat (demo)')),
+                                );
+                              },
+                            ),
+                            ListTile(
+                              leading: const Icon(Icons.call_outlined),
+                              title: const Text('Call us'),
+                              onTap: () {
+                                Navigator.pop(ctx);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Dialling support (demo)')),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ),
             ],
@@ -146,7 +222,20 @@ class AccountScreen extends ConsumerWidget {
                   const Icon(Icons.chevron_right, color: Colors.white38),
                 ],
               ),
-              onTap: () {},
+              onTap: () {
+                showDialog<void>(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    title: const Text('App update'),
+                    content: const Text(
+                      'You are on the latest demo build. In a real app this would open the store.',
+                    ),
+                    actions: [
+                      TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('OK')),
+                    ],
+                  ),
+                );
+              },
             ),
           ),
           const SizedBox(height: 8),
@@ -206,7 +295,20 @@ class AccountScreen extends ConsumerWidget {
                         ),
                   ),
                   TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      showDialog<void>(
+                        context: context,
+                        builder: (ctx) => AlertDialog(
+                          title: const Text('Sensitive items'),
+                          content: const Text(
+                            'When enabled, items such as pharmacy products are hidden from home and search in this demo.',
+                          ),
+                          actions: [
+                            TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Got it')),
+                          ],
+                        ),
+                      );
+                    },
                     style: TextButton.styleFrom(
                       padding: EdgeInsets.zero,
                       foregroundColor: kBlinkGreen,
@@ -242,14 +344,18 @@ class AccountScreen extends ConsumerWidget {
                   leading: const Icon(Icons.ramen_dining_outlined),
                   title: const Text('Bookmarked recipes'),
                   trailing: const Icon(Icons.chevron_right, color: Colors.white38),
-                  onTap: () {},
+                  onTap: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Recipes open from product pages (demo)')),
+                    );
+                  },
                 ),
                 const Divider(height: 1),
                 ListTile(
                   leading: const Icon(Icons.favorite_border),
                   title: const Text('Your wishlist'),
                   trailing: const Icon(Icons.chevron_right, color: Colors.white38),
-                  onTap: () {},
+                  onTap: () => context.pushNamed('wishlist'),
                 ),
               ],
             ),

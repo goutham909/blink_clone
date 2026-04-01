@@ -38,7 +38,8 @@
       "subtitle": "Drink Mix",
       "discountLabel": "₹214",
       "accentHex": "FFFF6B00",
-      "thumbnailHints": ["beverage", "snacks", "beverage"]
+      "thumbnailHints": ["beverage", "snacks", "beverage"],
+      "targetCategoryId": "cat_summer"
     },
     {
       "id": "deal_selfcare",
@@ -46,7 +47,8 @@
       "subtitle": "Sunscreen, protein & more",
       "discountLabel": "Up to 50% OFF",
       "accentHex": "FFFFFFFF",
-      "thumbnailHints": ["kitchen", "snacks", "dairy"]
+      "thumbnailHints": ["kitchen", "snacks", "dairy"],
+      "targetCategoryId": "cat_beauty"
     },
     {
       "id": "deal_kitchen",
@@ -54,7 +56,8 @@
       "subtitle": "Oil, atta, maggi",
       "discountLabel": "Up to 40% OFF",
       "accentHex": "FFFFFFFF",
-      "thumbnailHints": ["kitchen", "kitchen", "snacks"]
+      "thumbnailHints": ["kitchen", "kitchen", "snacks"],
+      "targetCategoryId": "cat_house"
     },
     {
       "id": "deal_coolers",
@@ -62,7 +65,8 @@
       "subtitle": "Juice & soft drinks",
       "discountLabel": "Up to 55% OFF",
       "accentHex": "FFFFFFFF",
-      "thumbnailHints": ["beverage", "snacks", "beverage"]
+      "thumbnailHints": ["beverage", "snacks", "beverage"],
+      "targetCategoryId": "cat_bev"
     },
     {
       "id": "deal_cleaning",
@@ -70,7 +74,8 @@
       "subtitle": "Detergent & fresheners",
       "discountLabel": "Up to 75% OFF",
       "accentHex": "FFFFFFFF",
-      "thumbnailHints": ["kitchen", "kitchen", "misc"]
+      "thumbnailHints": ["kitchen", "kitchen", "misc"],
+      "targetCategoryId": "cat_house"
     }
   ],
   "recentSearches": [
@@ -115,6 +120,11 @@
       "id": "rail_kitchen",
       "title": "Kitchen essentials",
       "productIds": ["p_oil", "p_rice", "p_salt", "p_sugar"]
+    },
+    {
+      "id": "rail_health",
+      "title": "Health & pharma",
+      "productIds": ["p_paracetamol"]
     }
   ],
   "products": [
@@ -310,6 +320,60 @@
       "ratingCount": 780,
       "deliveryMinutes": 12,
       "stockLeft": 3,
+      "optionsCount": 0,
+      "boughtEarlier": false,
+      "isAd": false,
+      "isVegetarian": true
+    },
+    {
+      "id": "p_sunscreen",
+      "name": "SPF 50 sunscreen",
+      "mrp": 499,
+      "salePrice": 399,
+      "unit": "50 ml",
+      "categoryId": "cat_beauty",
+      "imageHint": "misc",
+      "inStock": true,
+      "rating": 4.6,
+      "ratingCount": 312,
+      "deliveryMinutes": 12,
+      "stockLeft": 6,
+      "optionsCount": 2,
+      "boughtEarlier": false,
+      "isAd": false,
+      "isVegetarian": true
+    },
+    {
+      "id": "p_lemonade",
+      "name": "Instant lemon drink mix",
+      "mrp": 120,
+      "salePrice": 99,
+      "unit": "400 g",
+      "categoryId": "cat_summer",
+      "imageHint": "beverage",
+      "inStock": true,
+      "rating": 4.2,
+      "ratingCount": 88,
+      "deliveryMinutes": 12,
+      "stockLeft": 12,
+      "optionsCount": 1,
+      "boughtEarlier": false,
+      "isAd": false,
+      "isVegetarian": true
+    },
+    {
+      "id": "p_paracetamol",
+      "name": "Paracetamol tablets",
+      "mrp": 35,
+      "salePrice": 28,
+      "unit": "10 tablets",
+      "categoryId": "cat_pharma",
+      "imageHint": "misc",
+      "inStock": true,
+      "rating": 4.5,
+      "ratingCount": 420,
+      "deliveryMinutes": 12,
+      "stockLeft": 40,
       "optionsCount": 0,
       "boughtEarlier": false,
       "isAd": false,
