@@ -195,7 +195,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                 title: const Text('In stock only'),
                 value: local,
                 onChanged: (v) {
-                  if (v != null) setModal(() => local = v);
+                  setModal(() => local = v);
                 },
               ),
               FilledButton(

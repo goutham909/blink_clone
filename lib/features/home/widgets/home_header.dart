@@ -4,20 +4,25 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/constants.dart';
 import '../../../providers/providers.dart';
+import '../home_festival_theme.dart';
 
 class HomeHeader extends ConsumerWidget {
   const HomeHeader({
     super.key,
+    required this.visuals,
     required this.locationTitle,
     required this.deliveryMinutes,
     required this.onLocationTap,
-    this.showSurgeBadge = false,
+    this.showSurgeBadge,
   });
 
+  /// When set, overrides [HomeFestivalVisuals.showSurgeBadge] (e.g. Order Again screen).
+  final bool? showSurgeBadge;
+
+  final HomeFestivalVisuals visuals;
   final String locationTitle;
   final int deliveryMinutes;
   final VoidCallback onLocationTap;
-  final bool showSurgeBadge;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -25,16 +30,8 @@ class HomeHeader extends ConsumerWidget {
 
     return Container(
       width: double.infinity,
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            Color(0xFFFFE066),
-            Color(0xFFFFD54F),
-            Color(0xFFFFF8E1),
-          ],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
+      decoration: BoxDecoration(
+        gradient: visuals.headerGradient,
       ),
       child: SafeArea(
         bottom: false,
@@ -53,7 +50,7 @@ class HomeHeader extends ConsumerWidget {
                         Text(
                           'Blinkit in',
                           style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                                color: Colors.black87,
+                                color: visuals.headerEyebrowColor,
                                 fontWeight: FontWeight.w600,
                               ),
                         ),
@@ -64,13 +61,13 @@ class HomeHeader extends ConsumerWidget {
                               child: Text(
                                 '$deliveryMinutes minutes',
                                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                      color: Colors.black,
+                                      color: visuals.headerMinutesColor,
                                       fontWeight: FontWeight.w900,
                                       height: 1.1,
                                     ),
                               ),
                             ),
-                            if (showSurgeBadge) ...[
+                            if (showSurgeBadge ?? visuals.showSurgeBadge) ...[
                               const SizedBox(width: 8),
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -109,12 +106,12 @@ class HomeHeader extends ConsumerWidget {
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                                        color: Colors.black87,
+                                        color: visuals.headerBodyColor,
                                         fontWeight: FontWeight.w700,
                                       ),
                                 ),
                               ),
-                              const Icon(Icons.keyboard_arrow_down, color: Colors.black87),
+                              Icon(Icons.keyboard_arrow_down, color: visuals.headerBodyColor),
                             ],
                           ),
                         ),
@@ -189,14 +186,14 @@ class HomeHeader extends ConsumerWidget {
                       ),
                       const SizedBox(width: 8),
                       Material(
-                        color: Colors.black12,
+                        color: visuals.profileCircleFill,
                         shape: const CircleBorder(),
                         child: InkWell(
                           customBorder: const CircleBorder(),
                           onTap: () => context.pushNamed('account'),
-                          child: const Padding(
-                            padding: EdgeInsets.all(8),
-                            child: Icon(Icons.person_outline, color: Colors.black87),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8),
+                            child: Icon(Icons.person_outline, color: visuals.profileIconColor),
                           ),
                         ),
                       ),

@@ -9,6 +9,7 @@ import '../../data/models/product.dart';
 import '../../providers/providers.dart';
 import '../../widgets/product_image_placeholder.dart';
 import '../home/widgets/address_bottom_sheet.dart';
+import '../home/home_festival_theme.dart';
 import '../home/widgets/home_header.dart';
 
 /// Blinkit-style “Order again” — category grids (frequently bought), not order status list.
@@ -195,6 +196,7 @@ class OrderAgainScreen extends ConsumerWidget {
             slivers: [
               SliverToBoxAdapter(
                 child: HomeHeader(
+                  visuals: HomeFestivalVisuals.summer,
                   locationTitle: locationTitle,
                   deliveryMinutes: catalog.deliveryMinutes,
                   showSurgeBadge: true,

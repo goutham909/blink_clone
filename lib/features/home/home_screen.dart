@@ -8,8 +8,10 @@ import '../../core/category_icons.dart';
 import '../../core/constants.dart';
 import '../../providers/providers.dart';
 import '../../widgets/product_card.dart';
+import 'home_festival_theme.dart';
 import 'widgets/address_bottom_sheet.dart';
 import 'widgets/deal_cards_grid.dart';
+import 'widgets/home_festival_sections.dart';
 import 'widgets/home_header.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -19,8 +21,47 @@ class HomeScreen extends ConsumerStatefulWidget {
   ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends ConsumerState<HomeScreen> {
+class _HomeScreenState extends ConsumerState<HomeScreen>
+    with WidgetsBindingObserver {
   int _categoryIndex = 0;
+  int _festivalIndex = 0;
+  Timer? _festivalTimer;
+
+  /// Full cycle (summer → hanuman → diwali) every 36s. Timers in background
+  /// tabs can throttle on web; we reschedule on resume so changes stay visible.
+  static const _festivalInterval = Duration(seconds: 12);
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _startFestivalRotationTimer();
+  }
+
+  void _startFestivalRotationTimer() {
+    _festivalTimer?.cancel();
+    _festivalTimer = Timer.periodic(_festivalInterval, (_) {
+      if (!mounted) return;
+      setState(() {
+        _festivalIndex =
+            (_festivalIndex + 1) % HomeFestivalVisuals.rotation.length;
+      });
+    });
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _startFestivalRotationTimer();
+    }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _festivalTimer?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,6 +79,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ),
       data: (catalog) {
         final locationTitle = selected?.label ?? catalog.locationLabel;
+        final festivalVisuals =
+            HomeFestivalVisuals.rotation[_festivalIndex % HomeFestivalVisuals.rotation.length];
 
         final homeBodyLight = ThemeData(
           useMaterial3: true,
@@ -67,6 +110,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   slivers: [
                   SliverToBoxAdapter(
                     child: HomeHeader(
+                      visuals: festivalVisuals,
                       locationTitle: locationTitle,
                       deliveryMinutes: catalog.deliveryMinutes,
                       onLocationTap: () => showAddressBottomSheet(context, catalog),
@@ -74,18 +118,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   ),
                   SliverToBoxAdapter(
                     child: ColoredBox(
-                      color: const Color(0xFFF7F7F7),
+                      color: festivalVisuals.stripBelowHeaderColor,
                       child: Padding(
                         padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
                         child: _HomeSearchEntryBar(
                           onTap: () => context.pushNamed('search'),
+                          backgroundColor: festivalVisuals.searchBarBackground,
+                          hintColor: festivalVisuals.searchBarHintStyleColor,
+                          iconColor: festivalVisuals.searchBarIconColor,
                         ),
                       ),
                     ),
                   ),
                   SliverToBoxAdapter(
                     child: ColoredBox(
-                      color: const Color(0xFFF7F7F7),
+                      color: festivalVisuals.stripBelowHeaderColor,
                       child: SizedBox(
                         height: 118,
                         child: ListView.builder(
@@ -117,10 +164,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                           width: 52,
                                           height: 52,
                                           decoration: BoxDecoration(
-                                            color: Colors.white,
+                                            color: festivalVisuals.categoryCircleFill,
                                             shape: BoxShape.circle,
                                             border: Border.all(
-                                              color: isSelected ? Colors.black : Colors.transparent,
+                                              color: isSelected
+                                                  ? festivalVisuals.categoryCircleBorderSelected
+                                                  : Colors.transparent,
                                               width: 2,
                                             ),
                                             boxShadow: [
@@ -132,7 +181,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                           ),
                                           child: Icon(
                                             iconForCategoryName(c.iconName),
-                                            color: Colors.black87,
+                                            color: festivalVisuals.categoryIconColor,
                                           ),
                                         ),
                                         if (c.badgeText != null)
@@ -164,7 +213,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                     Text(
                                       c.label,
                                       style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                                            color: Colors.black87,
+                                            color: festivalVisuals.categoryLabelColor,
                                             fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
                                           ),
                                     ),
@@ -174,7 +223,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                         height: 3,
                                         width: 28,
                                         decoration: BoxDecoration(
-                                          color: Colors.black,
+                                          color: festivalVisuals.categoryCircleBorderSelected,
                                           borderRadius: BorderRadius.circular(2),
                                         ),
                                       ),
@@ -187,65 +236,87 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       ),
                     ),
                   ),
-                  if (catalog.poweredBy.isNotEmpty)
-                    SliverToBoxAdapter(
-                      child: ColoredBox(
-                        color: const Color(0xFFF7F7F7),
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                          child: Row(
-                            children: [
-                              Text(
-                                'POWERED BY',
-                                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                      color: Colors.black45,
-                                      letterSpacing: 0.5,
-                                    ),
-                              ),
-                              const SizedBox(width: 8),
-                              ...catalog.poweredBy.map(
-                                (b) => Padding(
-                                  padding: const EdgeInsets.only(right: 8),
-                                  child: InkWell(
-                                    onTap: () => context.pushNamed(
-                                      'search',
-                                      queryParameters: {'q': b},
-                                    ),
-                                    borderRadius: BorderRadius.circular(4),
-                                    child: Text(
-                                      b,
-                                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                                            color: Colors.black54,
-                                            fontWeight: FontWeight.w600,
-                                            decoration: TextDecoration.underline,
-                                            decorationColor: Colors.black38,
-                                          ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
                   SliverToBoxAdapter(
                     child: ColoredBox(
-                      color: const Color(0xFFF7F7F7),
-                      child: Padding(
-                        padding: const EdgeInsets.only(bottom: 16),
-                        child: DealCardsGrid(
-                          deals: catalog.dealCards,
-                          onDealTap: (deal) {
-                            final id = deal.targetCategoryId;
-                            if (id != null) {
-                              context.pushNamed(
-                                'search',
-                                queryParameters: {'category': id},
-                              );
-                            }
-                          },
-                        ),
+                      color: festivalVisuals.promoBackdropColor,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          if (catalog.poweredBy.isNotEmpty &&
+                              festivalVisuals.kind == HomeFestivalKind.summer)
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                              child: Row(
+                                children: [
+                                  Text(
+                                    'POWERED BY',
+                                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                          color: Colors.black45,
+                                          letterSpacing: 0.5,
+                                        ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  ...catalog.poweredBy.map(
+                                    (b) => Padding(
+                                      padding: const EdgeInsets.only(right: 8),
+                                      child: InkWell(
+                                        onTap: () => context.pushNamed(
+                                          'search',
+                                          queryParameters: {'q': b},
+                                        ),
+                                        borderRadius: BorderRadius.circular(4),
+                                        child: Text(
+                                          b,
+                                          style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                                                color: Colors.black54,
+                                                fontWeight: FontWeight.w600,
+                                                decoration: TextDecoration.underline,
+                                                decorationColor: Colors.black38,
+                                              ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 16),
+                            child: FestivalPromoSwitcher(
+                              visuals: festivalVisuals,
+                              summerChild: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  const SummerPromoTitle(),
+                                  DealCardsGrid(
+                                    deals: catalog.dealCards,
+                                    onDealTap: (deal) {
+                                      final id = deal.targetCategoryId;
+                                      if (id != null) {
+                                        context.pushNamed(
+                                          'search',
+                                          queryParameters: {'category': id},
+                                        );
+                                      }
+                                    },
+                                  ),
+                                ],
+                              ),
+                              hanumanChild: HanumanFestivalHero(
+                                onSeeAll: () => context.pushNamed(
+                                  'search',
+                                  queryParameters: {'q': 'laddu'},
+                                ),
+                              ),
+                              diwaliChild: DiwaliFestivalGrid(
+                                onCategoryTap: (label) => context.pushNamed(
+                                  'search',
+                                  queryParameters: {'q': label},
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
@@ -374,9 +445,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 }
 
 class _HomeSearchEntryBar extends StatefulWidget {
-  const _HomeSearchEntryBar({required this.onTap});
+  const _HomeSearchEntryBar({
+    required this.onTap,
+    required this.backgroundColor,
+    required this.hintColor,
+    required this.iconColor,
+  });
 
   final VoidCallback onTap;
+  final Color backgroundColor;
+  final Color hintColor;
+  final Color iconColor;
 
   @override
   State<_HomeSearchEntryBar> createState() => _HomeSearchEntryBarState();
@@ -419,7 +498,7 @@ class _HomeSearchEntryBarState extends State<_HomeSearchEntryBar> {
   @override
   Widget build(BuildContext context) {
     final hintStyle = Theme.of(context).textTheme.bodyLarge?.copyWith(
-          color: Colors.white54,
+          color: widget.hintColor,
         );
 
     return InkWell(
@@ -429,12 +508,12 @@ class _HomeSearchEntryBarState extends State<_HomeSearchEntryBar> {
         key: const Key('home_search_entry'),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
         decoration: BoxDecoration(
-          color: const Color(0xFF3A3A3C),
+          color: widget.backgroundColor,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
           children: [
-            const Icon(Icons.search, color: Colors.white54),
+            Icon(Icons.search, color: widget.iconColor),
             const SizedBox(width: 10),
             Expanded(
               child: ClipRect(
@@ -482,7 +561,7 @@ class _HomeSearchEntryBarState extends State<_HomeSearchEntryBar> {
                 ),
               ),
             ),
-            const Icon(Icons.mic_none, color: Colors.white54),
+            Icon(Icons.mic_none, color: widget.iconColor),
           ],
         ),
       ),
