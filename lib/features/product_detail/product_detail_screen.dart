@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../providers/providers.dart';
-import '../../widgets/product_image_placeholder.dart';
+import '../../widgets/catalog_image.dart';
 import '../../widgets/quantity_stepper.dart';
 
 class ProductDetailScreen extends ConsumerWidget {
@@ -48,11 +48,13 @@ class ProductDetailScreen extends ConsumerWidget {
           body: ListView(
             padding: const EdgeInsets.all(16),
             children: [
-              ProductImagePlaceholder(
+              CatalogImage(
+                imageRef: p.imageRef,
                 imageHint: p.imageHint,
                 accent: scheme.primary,
                 height: 220,
                 borderRadius: BorderRadius.circular(16),
+                fit: BoxFit.cover,
               ),
               const SizedBox(height: 16),
               Text(

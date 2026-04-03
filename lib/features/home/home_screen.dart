@@ -4,13 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../core/category_icons.dart';
 import '../../core/constants.dart';
 import '../../providers/providers.dart';
 import '../../widgets/product_card.dart';
 import 'home_festival_theme.dart';
 import 'widgets/address_bottom_sheet.dart';
 import 'widgets/deal_cards_grid.dart';
+import 'widgets/home_category_chips.dart';
 import 'widgets/home_festival_sections.dart';
 import 'widgets/home_header.dart';
 
@@ -23,7 +23,6 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 class _HomeScreenState extends ConsumerState<HomeScreen>
     with WidgetsBindingObserver {
-  int _categoryIndex = 0;
   int _festivalIndex = 0;
   Timer? _festivalTimer;
 
@@ -131,109 +130,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                     ),
                   ),
                   SliverToBoxAdapter(
-                    child: ColoredBox(
-                      color: festivalVisuals.stripBelowHeaderColor,
-                      child: SizedBox(
-                        height: 118,
-                        child: ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          primary: false,
-                          padding: const EdgeInsets.fromLTRB(12, 12, 12, 10),
-                          itemCount: catalog.categories.length,
-                          itemBuilder: (context, i) {
-                            final c = catalog.categories[i];
-                            final isSelected = i == _categoryIndex;
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 10),
-                              child: InkWell(
-                                onTap: () {
-                                  setState(() => _categoryIndex = i);
-                                  if (c.id == 'cat_all') return;
-                                  context.pushNamed(
-                                    'search',
-                                    queryParameters: {'category': c.id},
-                                  );
-                                },
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Stack(
-                                      clipBehavior: Clip.none,
-                                      children: [
-                                        Container(
-                                          width: 52,
-                                          height: 52,
-                                          decoration: BoxDecoration(
-                                            color: festivalVisuals.categoryCircleFill,
-                                            shape: BoxShape.circle,
-                                            border: Border.all(
-                                              color: isSelected
-                                                  ? festivalVisuals.categoryCircleBorderSelected
-                                                  : Colors.transparent,
-                                              width: 2,
-                                            ),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: Colors.black.withValues(alpha: 0.06),
-                                                blurRadius: 6,
-                                              ),
-                                            ],
-                                          ),
-                                          child: Icon(
-                                            iconForCategoryName(c.iconName),
-                                            color: festivalVisuals.categoryIconColor,
-                                          ),
-                                        ),
-                                        if (c.badgeText != null)
-                                          Positioned(
-                                            right: -4,
-                                            top: -4,
-                                            child: Container(
-                                              padding: const EdgeInsets.symmetric(
-                                                horizontal: 5,
-                                                vertical: 2,
-                                              ),
-                                              decoration: BoxDecoration(
-                                                color: Colors.red,
-                                                borderRadius: BorderRadius.circular(6),
-                                              ),
-                                              child: Text(
-                                                c.badgeText!,
-                                                style: const TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 9,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 6),
-                                    Text(
-                                      c.label,
-                                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                                            color: festivalVisuals.categoryLabelColor,
-                                            fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
-                                          ),
-                                    ),
-                                    if (isSelected)
-                                      Container(
-                                        margin: const EdgeInsets.only(top: 4),
-                                        height: 3,
-                                        width: 28,
-                                        decoration: BoxDecoration(
-                                          color: festivalVisuals.categoryCircleBorderSelected,
-                                          borderRadius: BorderRadius.circular(2),
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
+                    child: HomeCategoryChipsRow(
+                      categories: catalog.categories,
+                      visuals: festivalVisuals,
+                      onChipTap: (chip) {
+                        if (chip.id == 'cat_all') {
+                          context.pushNamed('search');
+                          return;
+                        }
+                        context.pushNamed(
+                          'search',
+                          queryParameters: {'category': chip.id},
+                        );
+                      },
                     ),
                   ),
                   SliverToBoxAdapter(

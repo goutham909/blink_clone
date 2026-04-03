@@ -5,6 +5,7 @@ import 'deal_card.dart';
 import 'product.dart';
 import 'product_rail.dart';
 import 'recent_search.dart';
+import 'shop_category_tile.dart';
 
 class MockCatalog {
   const MockCatalog({
@@ -23,6 +24,7 @@ class MockCatalog {
     required this.savedAddresses,
     required this.currentLocationAddress,
     required this.recommendationBrand,
+    this.shopCategoryTiles = const [],
   });
 
   final int schemaVersion;
@@ -40,6 +42,7 @@ class MockCatalog {
   final List<SavedAddress> savedAddresses;
   final String currentLocationAddress;
   final String recommendationBrand;
+  final List<ShopCategoryTile> shopCategoryTiles;
 
   Map<String, Product> get productById {
     return {for (final p in products) p.id: p};
@@ -87,6 +90,10 @@ class MockCatalog {
       currentLocationAddress: json['currentLocationAddress'] as String? ??
           'The Skyview, Raidurgam, Hitech City Main Rd, Madhapur, Telangana',
       recommendationBrand: json['recommendationBrand'] as String? ?? 'Kwality Walls',
+      shopCategoryTiles: (json['shopCategoryTiles'] as List<dynamic>?)
+              ?.map((e) => ShopCategoryTile.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
     );
   }
 }

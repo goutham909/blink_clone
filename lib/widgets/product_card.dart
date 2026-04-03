@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../core/constants.dart';
 import '../data/models/product.dart';
 import '../providers/providers.dart';
-import 'product_image_placeholder.dart';
+import 'catalog_image.dart';
 
 enum ProductCardLayout { rail, grid }
 
@@ -48,11 +48,13 @@ class ProductCard extends ConsumerWidget {
                 Stack(
                   clipBehavior: Clip.none,
                   children: [
-                    ProductImagePlaceholder(
+                    CatalogImage(
+                      imageRef: product.imageRef,
                       imageHint: product.imageHint,
                       accent: scheme.primary,
                       height: _imageHeight,
                       borderRadius: BorderRadius.circular(12),
+                      fit: BoxFit.cover,
                     ),
                     Positioned(
                       left: 4,

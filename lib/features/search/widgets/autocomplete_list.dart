@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/constants.dart';
 import '../../../data/models/product.dart';
-import '../../../widgets/product_image_placeholder.dart';
+import '../../../widgets/catalog_image.dart';
 
 class AutocompleteList extends StatelessWidget {
   const AutocompleteList({
@@ -35,11 +35,13 @@ class AutocompleteList extends StatelessWidget {
               child: SizedBox(
                 width: 44,
                 height: 44,
-                child: ProductImagePlaceholder(
+                child: CatalogImage(
+                  imageRef: p.imageRef,
                   imageHint: p.imageHint,
                   accent: Theme.of(context).colorScheme.primary,
                   height: 44,
                   borderRadius: BorderRadius.circular(8),
+                  fit: BoxFit.cover,
                 ),
               ),
             ),

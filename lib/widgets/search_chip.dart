@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../core/constants.dart';
 import '../data/models/product.dart';
-import 'product_image_placeholder.dart';
+import 'catalog_image.dart';
 
 class SearchHistoryChip extends StatelessWidget {
   const SearchHistoryChip({
@@ -35,11 +35,13 @@ class SearchHistoryChip extends StatelessWidget {
                   child: SizedBox(
                     width: 28,
                     height: 28,
-                    child: ProductImagePlaceholder(
+                    child: CatalogImage(
+                      imageRef: product!.imageRef,
                       imageHint: product!.imageHint,
                       accent: Theme.of(context).colorScheme.primary,
                       height: 28,
                       borderRadius: BorderRadius.circular(6),
+                      fit: BoxFit.cover,
                     ),
                   ),
                 )

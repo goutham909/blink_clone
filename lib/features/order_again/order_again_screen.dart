@@ -7,7 +7,7 @@ import '../../data/models/mock_catalog.dart';
 import '../../data/models/order_models.dart';
 import '../../data/models/product.dart';
 import '../../providers/providers.dart';
-import '../../widgets/product_image_placeholder.dart';
+import '../../widgets/catalog_image.dart';
 import '../home/widgets/address_bottom_sheet.dart';
 import '../home/home_festival_theme.dart';
 import '../home/widgets/home_header.dart';
@@ -358,11 +358,13 @@ class _FrequentCategoryCard extends StatelessWidget {
                     child: AspectRatio(
                       aspectRatio: 1,
                       child: thumbs.isNotEmpty
-                          ? ProductImagePlaceholder(
+                          ? CatalogImage(
+                              imageRef: thumbs[0].imageRef,
                               imageHint: thumbs[0].imageHint,
                               accent: accent,
                               height: 44,
                               borderRadius: BorderRadius.circular(8),
+                              fit: BoxFit.cover,
                             )
                           : const ColoredBox(color: Color(0xFF2A3F3F)),
                     ),
@@ -372,11 +374,13 @@ class _FrequentCategoryCard extends StatelessWidget {
                     child: AspectRatio(
                       aspectRatio: 1,
                       child: thumbs.length > 1
-                          ? ProductImagePlaceholder(
+                          ? CatalogImage(
+                              imageRef: thumbs[1].imageRef,
                               imageHint: thumbs[1].imageHint,
                               accent: accent,
                               height: 44,
                               borderRadius: BorderRadius.circular(8),
+                              fit: BoxFit.cover,
                             )
                           : const ColoredBox(color: Color(0xFF2A3F3F)),
                     ),

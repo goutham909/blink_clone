@@ -31,6 +31,108 @@
     { "id": "cat_bev", "label": "Beverages", "iconName": "beverage" },
     { "id": "cat_house", "label": "Home care", "iconName": "kitchen" }
   ],
+  "shopCategoryTiles": [
+    {
+      "label": "Paan corner",
+      "imageRef": "asset:catalog_images/chips.jpg",
+      "searchQuery": "chips"
+    },
+    {
+      "label": "Dairy, bread & eggs",
+      "imageRef": "asset:catalog_images/milk.jpg",
+      "categoryId": "cat_dairy"
+    },
+    {
+      "label": "Fruits & vegetables",
+      "imageRef": "asset:catalog_images/banner_fruit.jpg",
+      "searchQuery": "lemon"
+    },
+    {
+      "label": "Cold drinks & juices",
+      "imageRef": "asset:catalog_images/cola.jpg",
+      "categoryId": "cat_bev"
+    },
+    {
+      "label": "Snacks & munchies",
+      "imageRef": "asset:catalog_images/chips.jpg",
+      "categoryId": "cat_snacks"
+    },
+    {
+      "label": "Breakfast & instant",
+      "imageRef": "asset:catalog_images/biscuit.jpg",
+      "searchQuery": "biscuit"
+    },
+    {
+      "label": "Sweet tooth",
+      "imageRef": "asset:catalog_images/chocolate.jpg",
+      "searchQuery": "chocolate"
+    },
+    {
+      "label": "Bakery & biscuits",
+      "imageRef": "asset:catalog_images/bread.jpg",
+      "searchQuery": "bread"
+    },
+    {
+      "label": "Tea, coffee & milk drinks",
+      "imageRef": "asset:catalog_images/milk.jpg",
+      "categoryId": "cat_bev"
+    },
+    {
+      "label": "Atta, rice & dal",
+      "imageRef": "asset:catalog_images/rice.jpg",
+      "searchQuery": "rice"
+    },
+    {
+      "label": "Masala, oil & more",
+      "imageRef": "asset:catalog_images/oil.jpg",
+      "searchQuery": "oil"
+    },
+    {
+      "label": "Sauces & spreads",
+      "imageRef": "asset:catalog_images/sugar.jpg",
+      "searchQuery": "sugar"
+    },
+    {
+      "label": "Chicken, meat & fish",
+      "imageRef": "asset:catalog_images/salt.jpg",
+      "searchQuery": "salt"
+    },
+    {
+      "label": "Organic & healthy",
+      "imageRef": "asset:catalog_images/nuts.jpg",
+      "searchQuery": "nuts"
+    },
+    {
+      "label": "Baby care",
+      "imageRef": "asset:catalog_images/clean3.jpg",
+      "categoryId": "cat_beauty"
+    },
+    {
+      "label": "Pharma & wellness",
+      "imageRef": "asset:catalog_images/clean2.jpg",
+      "categoryId": "cat_pharma"
+    },
+    {
+      "label": "Cleaning essentials",
+      "imageRef": "asset:catalog_images/clean1.jpg",
+      "categoryId": "cat_house"
+    },
+    {
+      "label": "Home & office",
+      "imageRef": "asset:catalog_images/banner_veg.jpg",
+      "searchQuery": "sunscreen"
+    },
+    {
+      "label": "Personal care",
+      "imageRef": "asset:catalog_images/clean3.jpg",
+      "categoryId": "cat_beauty"
+    },
+    {
+      "label": "Pet care",
+      "imageRef": "asset:catalog_images/nuts.jpg",
+      "searchQuery": "chips"
+    }
+  ],
   "dealCards": [
     {
       "id": "deal_summer",
@@ -136,6 +238,7 @@
       "unit": "500 ml",
       "categoryId": "cat_dairy",
       "imageHint": "dairy",
+      "imageRef": "asset:catalog_images/milk.jpg",
       "inStock": true,
       "rating": 4.4,
       "ratingCount": 892,
@@ -154,6 +257,7 @@
       "unit": "400 g",
       "categoryId": "cat_snacks",
       "imageHint": "bakery",
+      "imageRef": "asset:catalog_images/bread.jpg",
       "inStock": true,
       "rating": 4.1,
       "ratingCount": 210,
@@ -172,6 +276,7 @@
       "unit": "52 g",
       "categoryId": "cat_snacks",
       "imageHint": "snacks",
+      "imageRef": "asset:catalog_images/chips.jpg",
       "inStock": true,
       "rating": 4.6,
       "ratingCount": 1203,
@@ -190,6 +295,7 @@
       "unit": "750 ml",
       "categoryId": "cat_bev",
       "imageHint": "beverage",
+      "imageRef": "asset:catalog_images/cola.jpg",
       "inStock": true,
       "rating": 4.3,
       "ratingCount": 560,
@@ -208,6 +314,7 @@
       "unit": "200 g",
       "categoryId": "cat_snacks",
       "imageHint": "snacks",
+      "imageRef": "asset:catalog_images/biscuit.jpg",
       "inStock": true,
       "rating": 4.5,
       "ratingCount": 340,
@@ -226,6 +333,7 @@
       "unit": "200 g",
       "categoryId": "cat_snacks",
       "imageHint": "snacks",
+      "imageRef": "asset:catalog_images/nuts.jpg",
       "inStock": true,
       "rating": 4.7,
       "ratingCount": 89,
@@ -244,6 +352,7 @@
       "unit": "90 g",
       "categoryId": "cat_snacks",
       "imageHint": "snacks",
+      "imageRef": "asset:catalog_images/chocolate.jpg",
       "inStock": false,
       "rating": 4.2,
       "ratingCount": 412,
@@ -261,6 +370,7 @@
       "unit": "1 L",
       "categoryId": "cat_house",
       "imageHint": "kitchen",
+      "imageRef": "asset:catalog_images/oil.jpg",
       "inStock": true,
       "rating": 4.4,
       "ratingCount": 670,
@@ -279,6 +389,7 @@
       "unit": "1 kg",
       "categoryId": "cat_house",
       "imageHint": "kitchen",
+      "imageRef": "asset:catalog_images/rice.jpg",
       "inStock": true,
       "rating": 4.5,
       "ratingCount": 900,
@@ -297,6 +408,7 @@
       "unit": "1 kg",
       "categoryId": "cat_house",
       "imageHint": "kitchen",
+      "imageRef": "asset:catalog_images/salt.jpg",
       "inStock": true,
       "rating": 4.0,
       "ratingCount": 2000,
@@ -315,6 +427,7 @@
       "unit": "1 kg",
       "categoryId": "cat_house",
       "imageHint": "kitchen",
+      "imageRef": "asset:catalog_images/sugar.jpg",
       "inStock": true,
       "rating": 4.3,
       "ratingCount": 780,
@@ -333,6 +446,7 @@
       "unit": "50 ml",
       "categoryId": "cat_beauty",
       "imageHint": "misc",
+      "imageRef": "asset:catalog_images/clean3.jpg",
       "inStock": true,
       "rating": 4.6,
       "ratingCount": 312,
@@ -351,6 +465,7 @@
       "unit": "400 g",
       "categoryId": "cat_summer",
       "imageHint": "beverage",
+      "imageRef": "asset:catalog_images/juice.jpg",
       "inStock": true,
       "rating": 4.2,
       "ratingCount": 88,
@@ -369,6 +484,7 @@
       "unit": "10 tablets",
       "categoryId": "cat_pharma",
       "imageHint": "misc",
+      "imageRef": "asset:catalog_images/clean2.jpg",
       "inStock": true,
       "rating": 4.5,
       "ratingCount": 420,

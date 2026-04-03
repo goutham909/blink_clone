@@ -7,6 +7,7 @@ class Product {
     required this.unit,
     required this.categoryId,
     required this.imageHint,
+    this.imageRef,
     required this.inStock,
     this.rating = 4.2,
     this.ratingCount = 100,
@@ -25,6 +26,7 @@ class Product {
   final String unit;
   final String categoryId;
   final String imageHint;
+  final String? imageRef;
   final bool inStock;
   final double rating;
   final int ratingCount;
@@ -59,6 +61,7 @@ class Product {
         'unit': unit,
         'categoryId': categoryId,
         'imageHint': imageHint,
+        if (imageRef != null) 'imageRef': imageRef,
         'inStock': inStock,
         'rating': rating,
         'ratingCount': ratingCount,
@@ -79,6 +82,7 @@ class Product {
       unit: json['unit'] as String,
       categoryId: json['categoryId'] as String,
       imageHint: json['imageHint'] as String? ?? 'misc',
+      imageRef: json['imageRef'] as String?,
       inStock: json['inStock'] as bool? ?? true,
       rating: (json['rating'] as num?)?.toDouble() ?? 4.2,
       ratingCount: (json['ratingCount'] as num?)?.toInt() ?? 100,

@@ -8,7 +8,7 @@ import '../../data/models/product.dart';
 import '../../data/models/product_rail.dart';
 import '../../providers/providers.dart';
 import '../../widgets/product_card.dart';
-import '../../widgets/product_image_placeholder.dart';
+import '../../widgets/catalog_image.dart';
 import '../../widgets/search_chip.dart';
 import 'widgets/autocomplete_list.dart';
 import 'widgets/filter_chips_bar.dart';
@@ -678,11 +678,13 @@ class _SearchLandingBody extends StatelessWidget {
                           ),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(12),
-                            child: ProductImagePlaceholder(
+                            child: CatalogImage(
+                              imageRef: p.imageRef,
                               imageHint: p.imageHint,
                               accent: Theme.of(context).colorScheme.primary,
                               height: 72,
                               borderRadius: BorderRadius.circular(12),
+                              fit: BoxFit.contain,
                             ),
                           ),
                         ),
