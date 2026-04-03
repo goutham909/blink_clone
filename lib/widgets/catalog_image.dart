@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../core/constants.dart';
 
-/// Resolves `asset:catalog_images/foo.jpg` to a Flutter [Image.asset] path.
+/// Resolves `asset:catalog_images/foo.png` to a Flutter [Image.asset] path.
 String? catalogAssetPathFromRef(String? ref) {
   final r = ref?.trim();
   if (r == null || !r.startsWith('asset:')) return null;
@@ -10,7 +10,7 @@ String? catalogAssetPathFromRef(String? ref) {
   return path.startsWith('assets/') ? path : 'assets/$path';
 }
 
-/// Renders a catalog [imageRef]: `https://...` uses the network; `asset:catalog_images/foo.jpg` uses [Image.asset].
+/// Renders a catalog [imageRef]: `https://...` uses the network; `asset:catalog_images/foo.png` uses [Image.asset].
 class CatalogImage extends StatelessWidget {
   const CatalogImage({
     super.key,
