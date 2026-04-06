@@ -42,7 +42,7 @@ class HomeFestivalVisuals {
   final Color profileIconColor;
   final Color promoBackdropColor;
 
-  /// Order used by legacy festival demo rotation (unused on main home).
+  /// Order used by the festival demo rotation on the home screen.
   static const List<HomeFestivalVisuals> rotation = [summer, hanuman, diwali];
 
   /// Matches Blinkit dark-mode screenshots: black header, gold minutes, white copy.

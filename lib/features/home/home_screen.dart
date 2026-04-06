@@ -14,7 +14,7 @@ import 'widgets/address_bottom_sheet.dart';
 import 'widgets/deal_cards_grid.dart';
 import 'widgets/home_category_chips.dart';
 import 'widgets/home_category_feed.dart';
-import 'widgets/home_festival_sections.dart' show SummerPromoTitle;
+import 'widgets/home_festival_sections.dart';
 import 'widgets/home_header.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -26,6 +26,31 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   String _homeCategoryId = 'cat_all';
+
+  static const _festivalInterval = Duration(seconds: 12);
+  Timer? _festivalTimer;
+  int _festivalIndex = 0;
+
+  HomeFestivalVisuals get _festivalVisuals =>
+      HomeFestivalVisuals.rotation[_festivalIndex];
+
+  @override
+  void initState() {
+    super.initState();
+    _festivalTimer = Timer.periodic(_festivalInterval, (_) {
+      if (!mounted) return;
+      setState(() {
+        _festivalIndex =
+            (_festivalIndex + 1) % HomeFestivalVisuals.rotation.length;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _festivalTimer?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +68,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ),
       data: (catalog) {
         final locationTitle = selected?.label ?? catalog.locationLabel;
-        const festivalVisuals = HomeFestivalVisuals.blinkitDark;
+        final festivalVisuals = _festivalVisuals;
 
         final homeBodyDark = ThemeData(
           useMaterial3: true,
@@ -177,23 +202,38 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               ),
                             Padding(
                               padding: const EdgeInsets.only(bottom: 16),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: [
-                                  const SummerPromoTitle(),
-                                  DealCardsGrid(
-                                    deals: catalog.dealCards,
-                                    onDealTap: (deal) {
-                                      final id = deal.targetCategoryId;
-                                      if (id != null) {
-                                        context.pushNamed(
-                                          'search',
-                                          queryParameters: {'category': id},
-                                        );
-                                      }
-                                    },
+                              child: FestivalPromoSwitcher(
+                                visuals: festivalVisuals,
+                                summerChild: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  children: [
+                                    const SummerPromoTitle(),
+                                    DealCardsGrid(
+                                      deals: catalog.dealCards,
+                                      onDealTap: (deal) {
+                                        final id = deal.targetCategoryId;
+                                        if (id != null) {
+                                          context.pushNamed(
+                                            'search',
+                                            queryParameters: {'category': id},
+                                          );
+                                        }
+                                      },
+                                    ),
+                                  ],
+                                ),
+                                hanumanChild: HanumanFestivalHero(
+                                  onSeeAll: () => context.pushNamed(
+                                    'search',
+                                    queryParameters: {'q': 'hanuman jayanti'},
                                   ),
-                                ],
+                                ),
+                                diwaliChild: DiwaliFestivalGrid(
+                                  onCategoryTap: (query) => context.pushNamed(
+                                    'search',
+                                    queryParameters: {'q': query},
+                                  ),
+                                ),
                               ),
                             ),
                           ],

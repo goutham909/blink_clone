@@ -105,138 +105,140 @@ class ProductCard extends ConsumerWidget {
       );
     }
 
-    final column = Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    final imageStack = Stack(
+      clipBehavior: Clip.none,
       children: [
-        Stack(
-          clipBehavior: Clip.none,
-          children: [
-            CatalogImage(
-              imageRef: product.imageRef,
-              imageHint: product.imageHint,
-              accent: scheme.primary,
-              height: _imageHeight,
-              borderRadius: imgRadius,
-              fit: BoxFit.cover,
-            ),
-            Positioned(
-              left: 4,
-              top: 4,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (product.boughtEarlier)
-                    Container(
-                      margin: const EdgeInsets.only(bottom: 4),
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF0D9488),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        'Bought Earlier',
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              color: Colors.white,
-                              fontSize: 9,
-                              fontWeight: FontWeight.w600,
-                            ),
-                      ),
-                    ),
-                  if (layout == ProductCardLayout.rail && product.saveAmount > 0)
-                    Container(
-                      margin: const EdgeInsets.only(bottom: 4),
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: tagBg,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        'Save ₹${product.saveAmount}',
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              color: Colors.white,
-                              fontSize: 9,
-                              fontWeight: FontWeight.bold,
-                            ),
-                      ),
-                    )
-                  else if (discount > 0)
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: tagBg,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        '$discount% OFF',
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              color: Colors.white,
-                              fontSize: 9,
-                              fontWeight: FontWeight.bold,
-                            ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-            if (product.isAd)
-              Positioned(
-                left: 4,
-                bottom: 28,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+        CatalogImage(
+          imageRef: product.imageRef,
+          imageHint: product.imageHint,
+          accent: scheme.primary,
+          height: _imageHeight,
+          borderRadius: imgRadius,
+          fit: BoxFit.cover,
+        ),
+        Positioned(
+          left: 4,
+          top: 4,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (product.boughtEarlier)
+                Container(
+                  margin: const EdgeInsets.only(bottom: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
-                    color: Colors.black54,
-                    borderRadius: BorderRadius.circular(3),
+                    color: const Color(0xFF0D9488),
+                    borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
-                    'Ad',
+                    'Bought Earlier',
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: Colors.white70,
-                          fontSize: 9,
-                        ),
-                  ),
-                ),
-              ),
-            Positioned(
-              right: 2,
-              top: 2,
-              child: IconButton(
-                visualDensity: VisualDensity.compact,
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
-                onPressed: () => ref.read(wishlistProvider.notifier).toggle(product.id),
-                icon: Icon(
-                  inWishlist ? Icons.favorite : Icons.favorite_border,
-                  size: 18,
-                  color: inWishlist ? Colors.redAccent : Colors.white70,
-                ),
-              ),
-            ),
-            if (!product.inStock)
-              Positioned.fill(
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.black54,
-                    borderRadius: imgRadius,
-                  ),
-                  alignment: Alignment.center,
-                  child: Text(
-                    'Out of stock',
-                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
                           color: Colors.white,
+                          fontSize: 9,
                           fontWeight: FontWeight.w600,
                         ),
                   ),
                 ),
-              )
-            else
-              Positioned(
-                right: 6,
-                bottom: 6,
-                child: addChip(),
-              ),
-          ],
+              if (layout == ProductCardLayout.rail && product.saveAmount > 0)
+                Container(
+                  margin: const EdgeInsets.only(bottom: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: tagBg,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    'Save ₹${product.saveAmount}',
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: Colors.white,
+                          fontSize: 9,
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                )
+              else if (discount > 0)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: tagBg,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    '$discount% OFF',
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: Colors.white,
+                          fontSize: 9,
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                ),
+            ],
+          ),
         ),
+        if (product.isAd)
+          Positioned(
+            left: 4,
+            bottom: 28,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+              decoration: BoxDecoration(
+                color: Colors.black54,
+                borderRadius: BorderRadius.circular(3),
+              ),
+              child: Text(
+                'Ad',
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: Colors.white70,
+                      fontSize: 9,
+                    ),
+              ),
+            ),
+          ),
+        Positioned(
+          right: 2,
+          top: 2,
+          child: IconButton(
+            visualDensity: VisualDensity.compact,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
+            onPressed: () => ref.read(wishlistProvider.notifier).toggle(product.id),
+            icon: Icon(
+              inWishlist ? Icons.favorite : Icons.favorite_border,
+              size: 18,
+              color: inWishlist ? Colors.redAccent : Colors.white70,
+            ),
+          ),
+        ),
+        if (!product.inStock)
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.black54,
+                borderRadius: imgRadius,
+              ),
+              alignment: Alignment.center,
+              child: Text(
+                'Out of stock',
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
+              ),
+            ),
+          )
+        else
+          Positioned(
+            right: 6,
+            bottom: 6,
+            child: addChip(),
+          ),
+      ],
+    );
+
+    final column = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        imageStack,
         if (product.inStock && product.optionsCount > 0)
           Padding(
             padding: const EdgeInsets.only(top: 2),
@@ -285,16 +287,18 @@ class ProductCard extends ConsumerWidget {
           ],
         ),
         const SizedBox(height: 2),
-        Text(
-          product.name,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.w600,
-                fontSize: layout == ProductCardLayout.grid ? 11 : 12,
-                color: titleColor,
-                height: 1.25,
-              ),
+        Flexible(
+          child: Text(
+            product.name,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  fontSize: layout == ProductCardLayout.grid ? 11 : 12,
+                  color: titleColor,
+                  height: 1.25,
+                ),
+          ),
         ),
         const SizedBox(height: 4),
         Row(
@@ -338,7 +342,6 @@ class ProductCard extends ConsumerWidget {
           ),
         ],
         const Spacer(),
-        const SizedBox(height: 4),
         Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [

@@ -554,7 +554,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                               ),
                               const SizedBox(height: 12),
                               SizedBox(
-                                height: 200,
+                                height: 300,
                                 child: ListView.builder(
                                   scrollDirection: Axis.horizontal,
                                   itemCount: trending.length,
@@ -639,7 +639,7 @@ class _SearchLandingBody extends StatelessWidget {
             ),
           ),
           SizedBox(
-            height: 260,
+            height: 300,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -709,7 +709,7 @@ class _SearchLandingBody extends StatelessWidget {
           ),
         ),
         SizedBox(
-          height: 260,
+          height: 300,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 12),

@@ -92,7 +92,7 @@ class HomeCategoryFeed extends ConsumerWidget {
                 )
               else
                 SizedBox(
-                  height: 288,
+                  height: 300,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
                     primary: false,
