@@ -19,7 +19,8 @@ class DealCardWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final accent = deal.accentColor;
-    final isLightCard = !isLarge && deal.isLightBackground;
+    final darkHome = Theme.of(context).brightness == Brightness.dark;
+    final isLightCard = !isLarge && deal.isLightBackground && !darkHome;
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(14),

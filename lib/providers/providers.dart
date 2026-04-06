@@ -244,23 +244,46 @@ final cartTotalsProvider = Provider<CartTotals>((ref) {
   return (itemCount: count, subtotal: subtotal);
 });
 
-/// User-typed recent searches (persisted in session).
-class RecentSearchesNotifier extends Notifier<List<String>> {
+/// User-typed recent searches (session) + whether mock catalog seeds stay visible.
+class RecentSearchesUiState {
+  const RecentSearchesUiState({
+    this.queries = const [],
+    this.hideCatalogRecent = false,
+  });
+
+  final List<String> queries;
+  /// When true, "Recent searches" omits JSON mock entries (after user taps Clear).
+  final bool hideCatalogRecent;
+
+  RecentSearchesUiState copyWith({
+    List<String>? queries,
+    bool? hideCatalogRecent,
+  }) =>
+      RecentSearchesUiState(
+        queries: queries ?? this.queries,
+        hideCatalogRecent: hideCatalogRecent ?? this.hideCatalogRecent,
+      );
+}
+
+class RecentSearchesNotifier extends Notifier<RecentSearchesUiState> {
   @override
-  List<String> build() => [];
+  RecentSearchesUiState build() => const RecentSearchesUiState();
 
   void add(String query) {
     final q = query.trim();
     if (q.isEmpty) return;
-    final next = [q, ...state.where((s) => s.toLowerCase() != q.toLowerCase())];
-    state = next.take(12).toList();
+    final next = [q, ...state.queries.where((s) => s.toLowerCase() != q.toLowerCase())];
+    state = state.copyWith(queries: next.take(12).toList());
   }
 
-  void clear() => state = [];
+  void clear() => state = const RecentSearchesUiState(
+        queries: [],
+        hideCatalogRecent: true,
+      );
 }
 
 final recentSearchesNotifierProvider =
-    NotifierProvider<RecentSearchesNotifier, List<String>>(RecentSearchesNotifier.new);
+    NotifierProvider<RecentSearchesNotifier, RecentSearchesUiState>(RecentSearchesNotifier.new);
 
 /// Selected delivery address label + line (mock).
 class SelectedAddressNotifier extends Notifier<SavedAddress?> {

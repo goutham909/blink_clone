@@ -123,41 +123,7 @@ class AccountScreen extends ConsumerWidget {
                 child: _QuickCard(
                   icon: Icons.account_balance_wallet_outlined,
                   label: 'Blinkit Money',
-                  onTap: () {
-                    showModalBottomSheet<void>(
-                      context: context,
-                      showDragHandle: true,
-                      builder: (ctx) => Padding(
-                        padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Text(
-                              'Blinkit Money',
-                              style: Theme.of(ctx).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Balance: ₹${ref.read(walletBalanceProvider)}',
-                              style: Theme.of(ctx).textTheme.bodyLarge,
-                            ),
-                            const SizedBox(height: 16),
-                            FilledButton(
-                              onPressed: () {
-                                ref.read(walletBalanceProvider.notifier).state += 500;
-                                Navigator.pop(ctx);
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Added ₹500 (demo)')),
-                                );
-                              },
-                              child: const Text('Add ₹500'),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
+                  onTap: () => context.pushNamed('blinkitMoney'),
                 ),
               ),
               const SizedBox(width: 10),

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'core/constants.dart';
+import 'core/web_material_icon_pins.dart';
 import 'providers/providers.dart';
 import 'routing/app_router.dart';
 import 'widgets/debug_panel_sheet.dart';
@@ -23,7 +24,17 @@ class BlinkCloneApp extends ConsumerWidget {
       routerConfig: router,
       builder: (context, child) {
         var result = child ?? const SizedBox.shrink();
-        if (kDebugMode) {
+        result = Stack(
+          fit: StackFit.expand,
+          clipBehavior: Clip.none,
+          children: [
+            result,
+            WebMaterialIconPinsLayer(),
+          ],
+        );
+        // Web / iframe (e.g. iphone_preview): FAB sits bottom-right and reads as a
+        // green square over the nav bar (primary color). Keep the panel on mobile/desktop only.
+        if (kDebugMode && !kIsWeb) {
           result = Stack(
             alignment: Alignment.bottomRight,
             children: [
@@ -74,9 +85,19 @@ ThemeData buildBlinkTheme(Brightness brightness) {
         indicatorColor: kBlinkGreen.withValues(alpha: 0.25),
         labelTextStyle: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return const TextStyle(color: kBlinkGreen, fontWeight: FontWeight.w600, fontSize: 12);
+            return const TextStyle(
+              color: kBlinkGreen,
+              fontWeight: FontWeight.w600,
+              fontSize: 10,
+              letterSpacing: -0.1,
+            );
           }
-          return const TextStyle(color: Colors.black54, fontSize: 12);
+          return const TextStyle(
+            color: Colors.black54,
+            fontWeight: FontWeight.w600,
+            fontSize: 10,
+            letterSpacing: -0.1,
+          );
         }),
         iconTheme: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
@@ -118,16 +139,27 @@ ThemeData buildBlinkTheme(Brightness brightness) {
     ),
     navigationBarTheme: NavigationBarThemeData(
       backgroundColor: kBlinkDarkSurface,
-      indicatorColor: kBlinkGreen.withValues(alpha: 0.35),
+      surfaceTintColor: Colors.transparent,
+      indicatorColor: kBlinkGold.withValues(alpha: 0.15),
       labelTextStyle: WidgetStateProperty.resolveWith((states) {
         if (states.contains(WidgetState.selected)) {
-          return const TextStyle(color: kBlinkGreen, fontWeight: FontWeight.w600, fontSize: 12);
+          return const TextStyle(
+            color: kBlinkGold,
+            fontWeight: FontWeight.w600,
+            fontSize: 10,
+            letterSpacing: -0.1,
+          );
         }
-        return const TextStyle(color: Colors.white54, fontSize: 12);
+        return const TextStyle(
+          color: Colors.white54,
+          fontWeight: FontWeight.w600,
+          fontSize: 10,
+          letterSpacing: -0.1,
+        );
       }),
       iconTheme: WidgetStateProperty.resolveWith((states) {
         if (states.contains(WidgetState.selected)) {
-          return const IconThemeData(color: kBlinkGreen);
+          return const IconThemeData(color: kBlinkGold);
         }
         return const IconThemeData(color: Colors.white54);
       }),

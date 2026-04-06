@@ -5,13 +5,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/constants.dart';
+import '../../data/models/category_chip.dart';
+import '../../data/models/product.dart';
 import '../../providers/providers.dart';
 import '../../widgets/product_card.dart';
 import 'home_festival_theme.dart';
 import 'widgets/address_bottom_sheet.dart';
 import 'widgets/deal_cards_grid.dart';
 import 'widgets/home_category_chips.dart';
-import 'widgets/home_festival_sections.dart';
+import 'widgets/home_category_feed.dart';
+import 'widgets/home_festival_sections.dart' show SummerPromoTitle;
 import 'widgets/home_header.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -21,46 +24,8 @@ class HomeScreen extends ConsumerStatefulWidget {
   ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends ConsumerState<HomeScreen>
-    with WidgetsBindingObserver {
-  int _festivalIndex = 0;
-  Timer? _festivalTimer;
-
-  /// Full cycle (summer → hanuman → diwali) every 36s. Timers in background
-  /// tabs can throttle on web; we reschedule on resume so changes stay visible.
-  static const _festivalInterval = Duration(seconds: 12);
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addObserver(this);
-    _startFestivalRotationTimer();
-  }
-
-  void _startFestivalRotationTimer() {
-    _festivalTimer?.cancel();
-    _festivalTimer = Timer.periodic(_festivalInterval, (_) {
-      if (!mounted) return;
-      setState(() {
-        _festivalIndex =
-            (_festivalIndex + 1) % HomeFestivalVisuals.rotation.length;
-      });
-    });
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      _startFestivalRotationTimer();
-    }
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    _festivalTimer?.cancel();
-    super.dispose();
-  }
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+  String _homeCategoryId = 'cat_all';
 
   @override
   Widget build(BuildContext context) {
@@ -78,15 +43,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
       ),
       data: (catalog) {
         final locationTitle = selected?.label ?? catalog.locationLabel;
-        final festivalVisuals =
-            HomeFestivalVisuals.rotation[_festivalIndex % HomeFestivalVisuals.rotation.length];
+        const festivalVisuals = HomeFestivalVisuals.blinkitDark;
 
-        final homeBodyLight = ThemeData(
+        final homeBodyDark = ThemeData(
           useMaterial3: true,
-          brightness: Brightness.light,
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: kBlinkGreen,
-            brightness: Brightness.light,
+          brightness: Brightness.dark,
+          scaffoldBackgroundColor: kBlinkScreenBg,
+          colorScheme: ColorScheme.dark(
+            surface: kBlinkScreenBg,
+            onSurface: Colors.white,
+            primary: kBlinkGreen,
+            secondary: kBlinkGold,
+            outline: kBlinkMutedOnDark,
           ),
         );
 
@@ -95,13 +63,34 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
         final scrollBottomPad =
             bottomNavClearance + (totals.itemCount > 0 ? 76 : 12);
 
+        final categorySection = _homeCategoryId == 'cat_all'
+            ? null
+            : catalog.homeCategorySectionFor(_homeCategoryId);
+        CategoryChipData? shelfChip;
+        if (_homeCategoryId != 'cat_all') {
+          for (final c in catalog.categories) {
+            if (c.id == _homeCategoryId) {
+              shelfChip = c;
+              break;
+            }
+          }
+        }
+        final shelfTitle = categorySection?.title ?? '${shelfChip?.label ?? 'Shop'} picks';
+        final shelfSubtitle = categorySection?.subtitle;
+        final shelfProducts = _homeCategoryId == 'cat_all'
+            ? const <Product>[]
+            : catalog
+                .shelfProductsForCategory(_homeCategoryId)
+                .where((p) => visibleWithSensitiveFilter(p, hideSensitive))
+                .toList();
+
         return Scaffold(
           key: const Key('screen_home'),
-          backgroundColor: const Color(0xFFF7F7F7),
+          backgroundColor: kBlinkScreenBg,
           body: Stack(
             children: [
               Theme(
-                data: homeBodyLight,
+                data: homeBodyDark,
                 child: CustomScrollView(
                   physics: const AlwaysScrollableScrollPhysics(
                     parent: BouncingScrollPhysics(),
@@ -132,68 +121,63 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                   SliverToBoxAdapter(
                     child: HomeCategoryChipsRow(
                       categories: catalog.categories,
+                      selectedId: _homeCategoryId,
                       visuals: festivalVisuals,
-                      onChipTap: (chip) {
-                        if (chip.id == 'cat_all') {
-                          context.pushNamed('search');
-                          return;
-                        }
-                        context.pushNamed(
-                          'search',
-                          queryParameters: {'category': chip.id},
-                        );
-                      },
+                      onSelected: (chip) =>
+                          setState(() => _homeCategoryId = chip.id),
                     ),
                   ),
-                  SliverToBoxAdapter(
-                    child: ColoredBox(
-                      color: festivalVisuals.promoBackdropColor,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          if (catalog.poweredBy.isNotEmpty &&
-                              festivalVisuals.kind == HomeFestivalKind.summer)
-                            Padding(
-                              padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                              child: Row(
-                                children: [
-                                  Text(
-                                    'POWERED BY',
-                                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                          color: Colors.black45,
-                                          letterSpacing: 0.5,
-                                        ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  ...catalog.poweredBy.map(
-                                    (b) => Padding(
-                                      padding: const EdgeInsets.only(right: 8),
-                                      child: InkWell(
-                                        onTap: () => context.pushNamed(
-                                          'search',
-                                          queryParameters: {'q': b},
-                                        ),
-                                        borderRadius: BorderRadius.circular(4),
-                                        child: Text(
-                                          b,
-                                          style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                                                color: Colors.black54,
-                                                fontWeight: FontWeight.w600,
-                                                decoration: TextDecoration.underline,
-                                                decorationColor: Colors.black38,
-                                              ),
+                  if (_homeCategoryId == 'cat_all') ...[
+                    SliverToBoxAdapter(
+                      child: ColoredBox(
+                        color: festivalVisuals.promoBackdropColor,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            if (catalog.poweredBy.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+                                child: SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        'POWERED BY',
+                                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                              color: Colors.white38,
+                                              letterSpacing: 0.6,
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                      ),
+                                      const SizedBox(width: 10),
+                                      ...catalog.poweredBy.map(
+                                        (b) => Padding(
+                                          padding: const EdgeInsets.only(right: 10),
+                                          child: InkWell(
+                                            onTap: () => context.pushNamed(
+                                              'search',
+                                              queryParameters: {'q': b},
+                                            ),
+                                            borderRadius: BorderRadius.circular(4),
+                                            child: Text(
+                                              b,
+                                              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                                                    color: Colors.white70,
+                                                    fontWeight: FontWeight.w600,
+                                                    decoration: TextDecoration.underline,
+                                                    decorationColor: Colors.white30,
+                                                  ),
+                                            ),
+                                          ),
                                         ),
                                       ),
-                                    ),
+                                    ],
                                   ),
-                                ],
+                                ),
                               ),
-                            ),
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 16),
-                            child: FestivalPromoSwitcher(
-                              visuals: festivalVisuals,
-                              summerChild: Column(
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 16),
+                              child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
                                   const SummerPromoTitle(),
@@ -211,94 +195,93 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                                   ),
                                 ],
                               ),
-                              hanumanChild: HanumanFestivalHero(
-                                onSeeAll: () => context.pushNamed(
-                                  'search',
-                                  queryParameters: {'q': 'laddu'},
-                                ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    SliverToBoxAdapter(
+                      child: ColoredBox(
+                        color: kBlinkScreenBg,
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(0, 8, 0, 12),
+                          child: _LowestPricesBanner(
+                            onTap: () => context.pushNamed(
+                              'search',
+                              queryParameters: {'rail': 'rail_lowest'},
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    ...catalog.rails.expand((rail) {
+                      final byId = catalog.productById;
+                      final products = rail.productIds
+                          .map((id) => byId[id])
+                          .whereType()
+                          .where((p) => visibleWithSensitiveFilter(p, hideSensitive))
+                          .toList();
+                      if (products.isEmpty) return <Widget>[];
+                      return [
+                        SliverToBoxAdapter(
+                          child: ColoredBox(
+                            color: kBlinkScreenBg,
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                              child: Text(
+                                rail.title,
+                                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w800,
+                                      fontSize: 18,
+                                      letterSpacing: -0.3,
+                                    ),
                               ),
-                              diwaliChild: DiwaliFestivalGrid(
-                                onCategoryTap: (label) => context.pushNamed(
-                                  'search',
-                                  queryParameters: {'q': label},
-                                ),
+                            ),
+                          ),
+                        ),
+                        SliverToBoxAdapter(
+                          child: ColoredBox(
+                            color: kBlinkScreenBg,
+                            child: SizedBox(
+                              height: 300,
+                              child: ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                primary: false,
+                                padding: const EdgeInsets.symmetric(horizontal: 16),
+                                itemCount: products.length,
+                                itemBuilder: (context, i) {
+                                  return Padding(
+                                    padding: const EdgeInsets.only(right: 12),
+                                    child: ProductCard(
+                                      product: products[i],
+                                      width: 158,
+                                      layout: ProductCardLayout.rail,
+                                    ),
+                                  );
+                                },
                               ),
                             ),
                           ),
-                        ],
+                        ),
+                      ];
+                    }),
+                    SliverToBoxAdapter(
+                      child: ColoredBox(
+                        color: kBlinkScreenBg,
+                        child: SizedBox(height: scrollBottomPad),
                       ),
                     ),
-                  ),
-                  SliverToBoxAdapter(
-                    child: ColoredBox(
-                      color: const Color(0xFFF7F7F7),
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(0, 0, 0, 12),
-                        child: _LowestPricesBanner(
-                          onTap: () => context.pushNamed(
-                            'search',
-                            queryParameters: {'rail': 'rail_lowest'},
-                          ),
-                        ),
+                  ] else
+                    SliverToBoxAdapter(
+                      child: HomeCategoryFeed(
+                        title: shelfTitle,
+                        subtitle: shelfSubtitle,
+                        products: shelfProducts,
+                        categoryId: _homeCategoryId,
+                        bottomPadding: scrollBottomPad,
                       ),
                     ),
-                  ),
-                  ...catalog.rails.expand((rail) {
-                    final byId = catalog.productById;
-                    final products = rail.productIds
-                        .map((id) => byId[id])
-                        .whereType()
-                        .where((p) => visibleWithSensitiveFilter(p, hideSensitive))
-                        .toList();
-                    if (products.isEmpty) return <Widget>[];
-                    return [
-                      SliverToBoxAdapter(
-                        child: ColoredBox(
-                          color: const Color(0xFFF7F7F7),
-                          child: Padding(
-                            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-                            child: Text(
-                              rail.title,
-                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                    color: Colors.black87,
-                                    fontWeight: FontWeight.w800,
-                                  ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      SliverToBoxAdapter(
-                        child: ColoredBox(
-                          color: const Color(0xFFF7F7F7),
-                          child: SizedBox(
-                            height: 280,
-                            child: ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              primary: false,
-                              padding: const EdgeInsets.symmetric(horizontal: 16),
-                              itemCount: products.length,
-                              itemBuilder: (context, i) {
-                                return Padding(
-                                  padding: const EdgeInsets.only(right: 12),
-                                  child: ProductCard(
-                                    product: products[i],
-                                    width: 150,
-                                    layout: ProductCardLayout.rail,
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        ),
-                      ),
-                    ];
-                  }),
-                  SliverToBoxAdapter(
-                    child: ColoredBox(
-                      color: const Color(0xFFF7F7F7),
-                      child: SizedBox(height: scrollBottomPad),
-                    ),
-                  ),
                   ],
                 ),
               ),
@@ -412,17 +395,17 @@ class _HomeSearchEntryBarState extends State<_HomeSearchEntryBar> {
 
     return InkWell(
       onTap: widget.onTap,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(24),
       child: Container(
         key: const Key('home_search_entry'),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
         decoration: BoxDecoration(
           color: widget.backgroundColor,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(24),
         ),
         child: Row(
           children: [
-            Icon(Icons.search, color: widget.iconColor),
+            Icon(Icons.search, color: widget.iconColor, size: 22),
             const SizedBox(width: 10),
             Expanded(
               child: ClipRect(
@@ -470,7 +453,13 @@ class _HomeSearchEntryBarState extends State<_HomeSearchEntryBar> {
                 ),
               ),
             ),
-            Icon(Icons.mic_none, color: widget.iconColor),
+            Container(
+              width: 1,
+              height: 22,
+              margin: const EdgeInsets.only(left: 10, right: 10),
+              color: widget.iconColor.withValues(alpha: 0.35),
+            ),
+            Icon(Icons.mic_none, color: widget.iconColor, size: 22),
           ],
         ),
       ),

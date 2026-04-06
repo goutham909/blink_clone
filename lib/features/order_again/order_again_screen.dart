@@ -196,7 +196,7 @@ class OrderAgainScreen extends ConsumerWidget {
             slivers: [
               SliverToBoxAdapter(
                 child: HomeHeader(
-                  visuals: HomeFestivalVisuals.summer,
+                  visuals: HomeFestivalVisuals.blinkitDark,
                   locationTitle: locationTitle,
                   deliveryMinutes: catalog.deliveryMinutes,
                   showSurgeBadge: true,

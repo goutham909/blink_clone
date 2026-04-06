@@ -301,7 +301,9 @@ class SummerPromoTitle extends StatelessWidget {
             'Deals & picks',
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w800,
-                  color: Colors.black87,
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? Colors.white
+                      : Colors.black87,
                 ),
           ),
         ],
@@ -329,6 +331,7 @@ class FestivalPromoSwitcher extends StatelessWidget {
   Widget build(BuildContext context) {
     Widget child;
     switch (visuals.kind) {
+      case HomeFestivalKind.blinkit:
       case HomeFestivalKind.summer:
         child = summerChild;
         break;

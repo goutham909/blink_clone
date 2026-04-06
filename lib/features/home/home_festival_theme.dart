@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum HomeFestivalKind { summer, hanuman, diwali }
+enum HomeFestivalKind { blinkit, summer, hanuman, diwali }
 
 /// Visual tokens for the rotating festival / promo header and surrounding strip.
 class HomeFestivalVisuals {
@@ -42,8 +42,37 @@ class HomeFestivalVisuals {
   final Color profileIconColor;
   final Color promoBackdropColor;
 
-  /// Order used by the 30s home rotation.
+  /// Order used by legacy festival demo rotation (unused on main home).
   static const List<HomeFestivalVisuals> rotation = [summer, hanuman, diwali];
+
+  /// Matches Blinkit dark-mode screenshots: black header, gold minutes, white copy.
+  static const HomeFestivalVisuals blinkitDark = HomeFestivalVisuals(
+    kind: HomeFestivalKind.blinkit,
+    headerGradient: LinearGradient(
+      colors: [
+        Color(0xFF121212),
+        Color(0xFF121212),
+      ],
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+    ),
+    headerEyebrowColor: Color(0xE6FFFFFF),
+    headerMinutesColor: Color(0xFFFFCC00),
+    headerBodyColor: Color(0xE6FFFFFF),
+    showSurgeBadge: false,
+    stripBelowHeaderColor: Color(0xFF121212),
+    // Slightly lifted circle so icons read on #121212 (transparent looked “empty” on web).
+    categoryCircleFill: Color(0xFF2C2C2E),
+    categoryCircleBorderSelected: Color(0xFFFFFFFF),
+    categoryLabelColor: Color(0xE6FFFFFF),
+    categoryIconColor: Color(0xFFFFFFFF),
+    searchBarBackground: Color(0xFF2C2C2E),
+    searchBarHintStyleColor: Color(0x8AFFFFFF),
+    searchBarIconColor: Color(0xB3FFFFFF),
+    profileCircleFill: Color(0xFFFFFFFF),
+    profileIconColor: Color(0xFF1C1C1E),
+    promoBackdropColor: Color(0xFF121212),
+  );
 
   static const HomeFestivalVisuals summer = HomeFestivalVisuals(
     kind: HomeFestivalKind.summer,

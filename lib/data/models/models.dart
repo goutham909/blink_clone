@@ -2,6 +2,7 @@ export 'address.dart';
 export 'banner_item.dart';
 export 'category_chip.dart';
 export 'deal_card.dart';
+export 'home_category_section.dart';
 export 'mock_catalog.dart';
 export 'order_models.dart';
 export 'product.dart';

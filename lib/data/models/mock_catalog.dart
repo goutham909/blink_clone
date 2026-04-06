@@ -5,6 +5,7 @@ import 'deal_card.dart';
 import 'product.dart';
 import 'product_rail.dart';
 import 'recent_search.dart';
+import 'home_category_section.dart';
 import 'shop_category_tile.dart';
 
 class MockCatalog {
@@ -25,6 +26,7 @@ class MockCatalog {
     required this.currentLocationAddress,
     required this.recommendationBrand,
     this.shopCategoryTiles = const [],
+    this.homeCategorySections = const [],
   });
 
   final int schemaVersion;
@@ -43,9 +45,39 @@ class MockCatalog {
   final String currentLocationAddress;
   final String recommendationBrand;
   final List<ShopCategoryTile> shopCategoryTiles;
+  final List<HomeCategorySection> homeCategorySections;
 
   Map<String, Product> get productById {
     return {for (final p in products) p.id: p};
+  }
+
+  HomeCategorySection? homeCategorySectionFor(String categoryId) {
+    for (final s in homeCategorySections) {
+      if (s.categoryId == categoryId) return s;
+    }
+    return null;
+  }
+
+  /// Products in [categoryId] only: optional pin order from [homeCategorySections],
+  /// then remaining SKUs A–Z by name (never pulls other aisles).
+  List<Product> shelfProductsForCategory(String categoryId) {
+    final inCategory =
+        products.where((p) => p.categoryId == categoryId).toList();
+    final section = homeCategorySectionFor(categoryId);
+    final pinned = section?.productIds ?? const <String>[];
+    final byId = {for (final p in inCategory) p.id: p};
+    final ordered = <Product>[];
+    final seen = <String>{};
+    for (final id in pinned) {
+      final p = byId[id];
+      if (p != null) {
+        ordered.add(p);
+        seen.add(p.id);
+      }
+    }
+    final rest = inCategory.where((p) => !seen.contains(p.id)).toList()
+      ..sort((a, b) => a.name.compareTo(b.name));
+    return [...ordered, ...rest];
   }
 
   factory MockCatalog.fromJson(Map<String, dynamic> json) {
@@ -92,6 +124,10 @@ class MockCatalog {
       recommendationBrand: json['recommendationBrand'] as String? ?? 'Kwality Walls',
       shopCategoryTiles: (json['shopCategoryTiles'] as List<dynamic>?)
               ?.map((e) => ShopCategoryTile.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
+      homeCategorySections: (json['homeCategorySections'] as List<dynamic>?)
+              ?.map((e) => HomeCategorySection.fromJson(e as Map<String, dynamic>))
               .toList() ??
           const [],
     );

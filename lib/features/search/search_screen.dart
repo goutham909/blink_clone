@@ -15,6 +15,76 @@ import 'widgets/filter_chips_bar.dart';
 
 enum _SearchSort { relevance, priceLow, priceHigh }
 
+List<String> _normalizedSearchTokens(String q) {
+  return q
+      .trim()
+      .toLowerCase()
+      .split(RegExp(r'\s+'))
+      .where((t) => t.isNotEmpty)
+      .toList();
+}
+
+bool _anyWordStartsWithToken(String lowerName, String token) {
+  if (token.isEmpty) return true;
+  for (final w in lowerName.split(RegExp(r'[^a-z0-9]+'))) {
+    if (w.isNotEmpty && w.startsWith(token)) return true;
+  }
+  return false;
+}
+
+/// Higher is better; null if any required token is missing.
+int? _productSearchScore(
+  Product p,
+  List<String> tokens,
+  String qNorm,
+  Map<String, String> categoryLabelById,
+) {
+  if (tokens.isEmpty && qNorm.isEmpty) return null;
+  final name = p.name.toLowerCase();
+  final unit = p.unit.toLowerCase();
+  final id = p.id.toLowerCase();
+  final cat = (categoryLabelById[p.categoryId] ?? '').toLowerCase();
+  final haystack = '$name $unit $id $cat';
+
+  for (final t in tokens) {
+    if (!haystack.contains(t)) return null;
+  }
+
+  var score = 0;
+  if (qNorm.isNotEmpty) {
+    if (name == qNorm) {
+      score += 5000;
+    } else if (name.startsWith(qNorm)) {
+      score += 3000;
+    } else if (_anyWordStartsWithToken(name, qNorm)) {
+      score += 2200;
+    } else if (name.contains(qNorm)) {
+      score += 1500;
+    } else if (haystack.contains(qNorm)) {
+      score += 800;
+    }
+  }
+
+  for (final t in tokens) {
+    if (name.startsWith(t)) {
+      score += 600;
+    } else if (_anyWordStartsWithToken(name, t)) {
+      score += 400;
+    } else if (name.contains(t)) {
+      score += 250;
+    } else if (cat.contains(t)) {
+      score += 150;
+    } else if (unit.contains(t)) {
+      score += 100;
+    } else {
+      score += 40;
+    }
+  }
+
+  score = score * 1000 + (500 - name.length).clamp(0, 500);
+  return score;
+}
+
 class SearchScreen extends ConsumerStatefulWidget {
   const SearchScreen({super.key});
 
@@ -52,41 +122,48 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     _seededQueryFromRoute = true;
   }
 
-  List<Product> _autocompleteSuggestions(String q, List<Product> all, bool hideSensitive) {
-    final s = q.trim().toLowerCase();
-    if (s.isEmpty) return [];
-    final scored = <Product>[];
+  List<Product> _autocompleteSuggestions(
+    String q,
+    List<Product> all,
+    bool hideSensitive,
+    Map<String, String> categoryLabelById,
+  ) {
+    final tokens = _normalizedSearchTokens(q);
+    final qNorm = q.trim().toLowerCase();
+    if (tokens.isEmpty && qNorm.isEmpty) return [];
+    final scored = <({Product p, int score})>[];
     for (final p in all) {
       if (!visibleWithSensitiveFilter(p, hideSensitive)) continue;
-      final n = p.name.toLowerCase();
-      if (n.startsWith(s)) {
-        scored.add(p);
-      } else if (n.contains(s)) {
-        scored.add(p);
-      }
+      final sc = _productSearchScore(p, tokens, qNorm, categoryLabelById);
+      if (sc != null) scored.add((p: p, score: sc));
     }
     scored.sort((a, b) {
-      final na = a.name.toLowerCase();
-      final nb = b.name.toLowerCase();
-      final sa = na.startsWith(s) ? 0 : 1;
-      final sb = nb.startsWith(s) ? 0 : 1;
-      if (sa != sb) return sa.compareTo(sb);
-      return na.compareTo(nb);
+      final c = b.score.compareTo(a.score);
+      if (c != 0) return c;
+      return a.p.name.toLowerCase().compareTo(b.p.name.toLowerCase());
     });
-    return scored.take(5).toList();
+    return scored.take(5).map((e) => e.p).toList();
   }
 
-  List<Product> _searchResults(String q, List<Product> all) {
-    final s = q.trim().toLowerCase();
-    if (s.isEmpty) return [];
-    return all
-        .where(
-          (p) =>
-              p.name.toLowerCase().contains(s) ||
-              p.unit.toLowerCase().contains(s) ||
-              p.id.toLowerCase().contains(s),
-        )
-        .toList();
+  List<Product> _searchResults(
+    String q,
+    List<Product> all,
+    Map<String, String> categoryLabelById,
+  ) {
+    final tokens = _normalizedSearchTokens(q);
+    final qNorm = q.trim().toLowerCase();
+    if (tokens.isEmpty && qNorm.isEmpty) return [];
+    final scored = <({Product p, int score})>[];
+    for (final p in all) {
+      final sc = _productSearchScore(p, tokens, qNorm, categoryLabelById);
+      if (sc != null) scored.add((p: p, score: sc));
+    }
+    scored.sort((a, b) {
+      final c = b.score.compareTo(a.score);
+      if (c != 0) return c;
+      return a.p.name.toLowerCase().compareTo(b.p.name.toLowerCase());
+    });
+    return scored.map((e) => e.p).toList();
   }
 
   List<Product> _applyScope(
@@ -213,8 +290,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   }
 
   List<Product> _browseCategoryProducts(MockCatalog catalog, String categoryId, bool hideSensitive) {
-    return catalog.products
-        .where((p) => p.categoryId == categoryId)
+    return catalog
+        .shelfProductsForCategory(categoryId)
         .where((p) => visibleWithSensitiveFilter(p, hideSensitive))
         .toList();
   }
@@ -247,7 +324,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     final catalogAsync = ref.watch(catalogProvider);
-    final userRecent = ref.watch(recentSearchesNotifierProvider);
+    final recentUi = ref.watch(recentSearchesNotifierProvider);
     final hideSensitive = ref.watch(hideSensitiveProvider);
     final uri = GoRouterState.of(context).uri;
     final categoryParam = uri.queryParameters['category'];
@@ -259,9 +336,10 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
       data: (catalog) {
         final all = catalog.products;
         final byId = catalog.productById;
+        final categoryLabelById = {for (final c in catalog.categories) c.id: c.label};
         final q = _controller.text;
-        final suggestions = _autocompleteSuggestions(q, all, hideSensitive);
-        var results = _searchResults(q, all);
+        final suggestions = _autocompleteSuggestions(q, all, hideSensitive, categoryLabelById);
+        var results = _searchResults(q, all, categoryLabelById);
         results = _applyScope(results, catalog, categoryParam, railParam, hideSensitive);
         results = _applySort(results);
 
@@ -283,6 +361,20 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
         final browseCategory = categoryParam != null && categoryParam.isNotEmpty && categoryParam != 'cat_all'
             ? _browseCategoryProducts(catalog, categoryParam, hideSensitive)
             : <Product>[];
+
+        if (browseCategory.isNotEmpty) {
+          topPicks = browseCategory;
+          final inCategoryIds = browseCategory.map((p) => p.id).toSet();
+          trending = catalog.trendingProductIds
+              .map((id) => byId[id])
+              .whereType<Product>()
+              .where((p) => inCategoryIds.contains(p.id))
+              .where((p) => visibleWithSensitiveFilter(p, hideSensitive))
+              .toList();
+          if (trending.length < 3) {
+            trending = browseCategory.take(6).toList();
+          }
+        }
         final browseRail = railParam != null && railParam.isNotEmpty
             ? _browseRailProducts(catalog, railParam, hideSensitive)
             : <Product>[];
@@ -355,7 +447,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           body: q.trim().isEmpty
               ? _SearchLandingBody(
                   catalogRecent: catalogRecent,
-                  userRecent: userRecent,
+                  userRecent: recentUi.queries,
+                  hideCatalogRecent: recentUi.hideCatalogRecent,
                   byId: byId,
                   topPicks: topPicks,
                   trending: trending,
@@ -493,6 +586,7 @@ class _SearchLandingBody extends StatelessWidget {
   const _SearchLandingBody({
     required this.catalogRecent,
     required this.userRecent,
+    required this.hideCatalogRecent,
     required this.byId,
     required this.topPicks,
     required this.trending,
@@ -506,6 +600,7 @@ class _SearchLandingBody extends StatelessWidget {
 
   final List<MapEntry<String, Product?>> catalogRecent;
   final List<String> userRecent;
+  final bool hideCatalogRecent;
   final Map<String, Product> byId;
   final List<Product> topPicks;
   final List<Product> trending;
@@ -519,8 +614,10 @@ class _SearchLandingBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final merged = <String, Product?>{};
-    for (final e in catalogRecent) {
-      merged[e.key] = e.value;
+    if (!hideCatalogRecent) {
+      for (final e in catalogRecent) {
+        merged[e.key] = e.value;
+      }
     }
     for (final q in userRecent) {
       merged.putIfAbsent(q, () => null);

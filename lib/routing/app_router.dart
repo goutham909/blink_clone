@@ -3,6 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../features/account/account_screen.dart';
+import '../features/blinkit_money/blinkit_money_add_screen.dart';
+import '../features/blinkit_money/blinkit_money_gift_card_screen.dart';
+import '../features/blinkit_money/blinkit_money_hub_screen.dart';
+import '../features/blinkit_money/blinkit_money_settings_screen.dart';
 import '../features/cart/cart_screen.dart';
 import '../features/categories/categories_screen.dart';
 import '../features/checkout/checkout_screen.dart';
@@ -88,6 +92,32 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: 'account',
         parentNavigatorKey: _rootKey,
         builder: (context, state) => const AccountScreen(),
+      ),
+      GoRoute(
+        path: '/blinkit-money',
+        name: 'blinkitMoney',
+        parentNavigatorKey: _rootKey,
+        builder: (context, state) => const BlinkitMoneyHubScreen(),
+        routes: [
+          GoRoute(
+            path: 'add',
+            name: 'blinkitMoneyAdd',
+            parentNavigatorKey: _rootKey,
+            builder: (context, state) => const BlinkitMoneyAddScreen(),
+          ),
+          GoRoute(
+            path: 'gift-card',
+            name: 'blinkitMoneyGiftCard',
+            parentNavigatorKey: _rootKey,
+            builder: (context, state) => const BlinkitMoneyGiftCardScreen(),
+          ),
+          GoRoute(
+            path: 'settings',
+            name: 'blinkitMoneySettings',
+            parentNavigatorKey: _rootKey,
+            builder: (context, state) => const BlinkitMoneySettingsScreen(),
+          ),
+        ],
       ),
       GoRoute(
         path: '/wishlist',

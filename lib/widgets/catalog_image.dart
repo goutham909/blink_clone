@@ -41,6 +41,9 @@ class CatalogImage extends StatelessWidget {
         return Icons.local_bar_outlined;
       case 'kitchen':
         return Icons.kitchen_outlined;
+      case 'home':
+      case 'linen':
+        return Icons.bed_outlined;
       default:
         return Icons.inventory_2_outlined;
     }
